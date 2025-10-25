@@ -1,0 +1,77 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Create a maintenance record (using revised DTO)
+POST {{baseUrl}}/maintenance
+Content-Type: application/json
+
+{
+  "carId": "5",
+  "maintenanceType": "Oil Change",
+  "description": "Regular oil and filter change",
+  "maintenanceDate": "2024-01-15",
+  "cost": 75.50,
+  "status": "scheduled"
+}
+
+### 2. Create another maintenance record
+POST {{baseUrl}}/maintenance
+Content-Type: application/json
+
+{
+  "carId": "1",
+  "maintenanceType": "Tire Rotation",
+  "description": "Rotate all four tires",
+  "maintenanceDate": "2024-02-01",
+  "cost": 25.00
+  // status will default to "scheduled"
+}
+
+### 3. Create completed maintenance
+POST {{baseUrl}}/maintenance
+Content-Type: application/json
+
+{
+  "carId": "2",
+  "maintenanceType": "Brake Service",
+  "description": "Replace brake pads and rotors",
+  "maintenanceDate": "2024-01-10",
+  "cost": 320.00,
+  "status": "completed"
+}
+
+### 4. Get all maintenance records
+GET {{baseUrl}}/maintenance
+
+### 5. Get maintenance by ID (replace {id})
+GET {{baseUrl}}/maintenance/1
+
+### 6. Get maintenance by car ID (replace {carId})
+GET {{baseUrl}}/maintenance/car/1
+
+### 7. Get maintenance by status
+GET {{baseUrl}}/maintenance/status/scheduled
+
+### 8. Get upcoming maintenance (next 7 days)
+GET {{baseUrl}}/maintenance/upcoming?days=7
+
+### 9. Update maintenance status (replace {id})
+PATCH {{baseUrl}}/maintenance/1/status
+Content-Type: application/json
+
+"in-progress"
+
+### 10. Update maintenance record (replace {id})
+PATCH {{baseUrl}}/maintenance/1
+Content-Type: application/json
+
+{
+  "cost": 80.00,
+  "description": "Oil change with synthetic oil"
+}
+
+### 11. Get maintenance cost for car (replace {carId})
+GET {{baseUrl}}/maintenance/car/1/cost
+
+### 12. Delete maintenance record (replace {id})
+DELETE {{baseUrl}}/maintenance/1

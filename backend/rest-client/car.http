@@ -1,0 +1,39 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Create a new car (with fixed DTO properties)
+### Use the OLD property names that match your DTO
+POST {{baseUrl}}/cars
+Content-Type: application/json
+
+{
+  "carModel": "Camry",
+  "manufacturer": "Toyota", 
+  "year": 2023,
+  "color": "Blue",
+  "rentalRate": 45.50,
+  "availability": true
+}
+
+### 2. Create another car
+POST {{baseUrl}}/cars
+Content-Type: application/json
+
+{
+  "carModel": "Civic",
+  "manufacturer": "Honda", 
+  "year": 2024,
+  "color": "Red",
+  "rentalRate": 40.00,
+  "availability": true
+}
+
+### 3. Update car (with fixed DTO properties)
+PATCH {{baseUrl}}/cars/5
+Content-Type: application/json
+
+{
+  "rentalRate": 48.00,
+  "color": "Dark Blue",
+  "isAvailable": false
+}

@@ -1,0 +1,58 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Create a new location (using ENTITY property names)
+POST {{baseUrl}}/location
+Content-Type: application/json
+
+{
+  "LocationName": "chuka",
+  "Address": "4060, chuka",
+  "ContactNumber": "555-0101"
+}
+
+### 2. Create another location
+POST {{baseUrl}}/location
+Content-Type: application/json
+
+{
+  "LocationName": "Airport Branch",
+  "Address": "456 Airport Road, Airport Zone, City",
+  "ContactNumber": "555-0202"
+}
+
+### 3. Create location without contact number (nullable)
+POST {{baseUrl}}/location
+Content-Type: application/json
+
+{
+  "LocationName": "Mall Branch",
+  "Address": "789 Shopping Mall, Retail District, City"
+}
+
+### 4. Get all locations
+GET {{baseUrl}}/location
+
+### 5. Get location by ID (replace {id} with actual location ID from response above)
+GET {{baseUrl}}/location/1
+
+### 6. Update location (replace {id} with actual location ID)
+PATCH {{baseUrl}}/location/1
+Content-Type: application/json
+
+{
+  "ContactNumber": "555-9999",
+  "Address": "123 Updated Main Street, Downtown, City"
+}
+
+### 7. Search locations by name
+GET {{baseUrl}}/location/search/Downtown
+
+### 8. Find locations by name
+GET {{baseUrl}}/location/name/Airport%20Branch
+
+### 9. Find locations by address
+GET {{baseUrl}}/location/address/Main
+
+### 10. Delete a location (replace {id} with actual location ID)
+DELETE {{baseUrl}}/location/1

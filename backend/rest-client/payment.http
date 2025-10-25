@@ -1,0 +1,93 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Create a payment (replace {rentalId} with actual rental ID)
+POST {{baseUrl}}/payment
+Content-Type: application/json
+
+{
+  "rentalId": "1",
+  "paymentDate": "2024-01-15",
+  "amount": 150.75,
+  "paymentMethod": "Credit Card"
+}
+
+### 2. Create another payment
+POST {{baseUrl}}/payment
+Content-Type: application/json
+
+{
+  "rentalId": "1",
+  "paymentDate": "2024-01-20",
+  "amount": 75.50,
+  "paymentMethod": "Cash"
+}
+
+### 3. Create payment with different rental
+POST {{baseUrl}}/payment
+Content-Type: application/json
+
+{
+  "rentalId": "2",
+  "paymentDate": "2024-02-01",
+  "amount": 200.00,
+  "paymentMethod": "Debit Card"
+}
+
+### 4. Get all payments
+GET {{baseUrl}}/payment
+
+### 5. Get payment by ID (replace {id})
+GET {{baseUrl}}/payment/1
+
+### 6. Get payments by rental ID (replace {rentalId})
+GET {{baseUrl}}/payment/rental/1
+
+### 7. Get payments by payment method
+GET {{baseUrl}}/payment/method/Credit%20Card
+
+### 8. Get payments by date range
+GET {{baseUrl}}/payment/range?startDate=2024-01-01&endDate=2024-01-31
+
+### 9. Update payment (replace {id})
+PATCH {{baseUrl}}/payment/1
+Content-Type: application/json
+
+{
+  "amount": 160.00,
+  "paymentMethod": "Bank Transfer"
+}
+
+### 10. Get total revenue
+GET {{baseUrl}}/payment/revenue/total
+
+### 11. Get revenue by date range
+GET {{baseUrl}}/payment/revenue/range?startDate=2024-01-01&endDate=2024-01-31
+
+### 12. Get payment methods summary
+GET {{baseUrl}}/payment/methods/summary
+
+### 13. Delete payment (replace {id})
+DELETE {{baseUrl}}/payment/1
+
+### 14. Try to create payment with invalid amount (should return 400)
+POST {{baseUrl}}/payment
+Content-Type: application/json
+
+{
+  "rentalId": "1",
+  "paymentDate": "2024-01-15",
+  "amount": -50.00,
+  "paymentMethod": "Credit Card"
+}
+
+### 15. Try to create payment for non-existent rental (should return 404)
+POST {{baseUrl}}/payment
+Content-Type: application/json
+
+{
+  "rentalId": "999",
+  "paymentDate": "2024-01-15",
+  "amount": 100.00,
+  "paymentMethod": "Credit Card"
+}

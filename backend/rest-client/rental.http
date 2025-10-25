@@ -1,0 +1,94 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Check car availability (replace {carId})
+GET {{baseUrl}}/rental/availability/1?startDate=2024-01-15&endDate=2024-01-20
+
+### 2. Create a rental (replace {carId} and {customerId})
+POST {{baseUrl}}/rental
+Content-Type: application/json
+
+{
+  "carId": "5",
+  "customerId": "1",
+  "startDate": "2024-01-15",
+  "endDate": "2024-01-20",
+  "totalCost": 450.00,
+  "status": "active"
+}
+
+### 3. Create another rental
+POST {{baseUrl}}/rental
+Content-Type: application/json
+
+{
+  "carId": "2",
+  "customerId": "2",
+  "startDate": "2024-02-01",
+  "endDate": "2024-02-05",
+  "totalCost": 320.50
+  // status will default to "active"
+}
+
+### 4. Get all rentals
+GET {{baseUrl}}/rental
+
+### 5. Get rental by ID (replace {id})
+GET {{baseUrl}}/rental/1
+
+### 6. Get rentals by customer ID (replace {customerId})
+GET {{baseUrl}}/rental/customer/1
+
+### 7. Get rentals by car ID (replace {carId})
+GET {{baseUrl}}/rental/car/1
+
+### 8. Get rentals by status
+GET {{baseUrl}}/rental/status/active
+
+### 9. Get active rentals
+GET {{baseUrl}}/rental/active
+
+### 10. Update rental (replace {id})
+PATCH {{baseUrl}}/rental/1
+Content-Type: application/json
+
+{
+  "totalCost": 480.00,
+  "endDate": "2024-01-22"
+}
+
+### 11. Update rental status (replace {id})
+PATCH {{baseUrl}}/rental/1/status
+Content-Type: application/json
+
+"completed"
+
+### 12. Get rental statistics
+GET {{baseUrl}}/rental/stats
+
+### 13. Delete rental (replace {id})
+DELETE {{baseUrl}}/rental/1
+
+### 14. Try to create rental with date conflict (should return 409)
+POST {{baseUrl}}/rental
+Content-Type: application/json
+
+{
+  "carId": "1",
+  "customerId": "1",
+  "startDate": "2024-01-18",
+  "endDate": "2024-01-25",
+  "totalCost": 500.00
+}
+
+### 15. Try to create rental for unavailable car (should return 409)
+POST {{baseUrl}}/rental
+Content-Type: application/json
+
+{
+  "carId": "1",
+  "customerId": "1",
+  "startDate": "2024-03-01",
+  "endDate": "2024-03-05",
+  "totalCost": 400.00
+}

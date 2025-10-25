@@ -1,0 +1,54 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Create insurance for a car (using ORIGINAL DTO property names)
+POST {{baseUrl}}/insurance
+Content-Type: application/json
+
+{
+  "carId": "5",
+  "insuranceProvider": "State Farm",
+  "policyNumber": "SF123456789",
+  "startDate": "2024-01-01",
+  "endDate": "2025-01-01"
+}
+
+### 2. Create another insurance
+POST {{baseUrl}}/insurance
+Content-Type: application/json
+
+{
+  "carId": "2",
+  "insuranceProvider": "Geico",
+  "policyNumber": "GC987654321",
+  "startDate": "2024-02-01",
+  "endDate": "2025-02-01"
+}
+
+### 3. Get all insurance records
+GET {{baseUrl}}/insurance
+
+### 4. Get insurance by ID (replace {id} with actual insurance ID)
+GET {{baseUrl}}/insurance/1
+
+### 5. Get insurance by car ID (replace {carId} with actual car ID)
+GET {{baseUrl}}/insurance/car/1
+
+### 6. Update insurance (replace {id} with actual insurance ID)
+PATCH {{baseUrl}}/insurance/1
+Content-Type: application/json
+
+{
+  "insuranceProvider": "State Farm Updated",
+  "policyNumber": "SF-UPDATED-123",
+  "endDate": "2025-06-01"
+}
+
+### 7. Check if insurance is valid for car (replace {carId})
+GET {{baseUrl}}/insurance/car/1/valid
+
+### 8. Get expiring insurances (within 30 days)
+GET {{baseUrl}}/insurance/expiring?days=30
+
+### 9. Delete insurance (replace {id})
+DELETE {{baseUrl}}/insurance/1

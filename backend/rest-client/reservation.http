@@ -1,0 +1,88 @@
+### Base URL
+@baseUrl = http://localhost:3000
+
+### 1. Check car availability for reservation (replace {carId})
+GET {{baseUrl}}/reservation/availability/1?startDate=2024-02-15&endDate=2024-02-20
+
+### 2. Create a reservation (replace {carId} and {customerId})
+POST {{baseUrl}}/reservation
+Content-Type: application/json
+
+{
+  "carId": "6",
+  "customerId": "2",
+  "startDate": "2024-02-15",
+  "endDate": "2024-02-20",
+  "totalPrice": 375.00,
+  "status": "pending"
+}
+
+### 3. Create another reservation
+POST {{baseUrl}}/reservation
+Content-Type: application/json
+
+{
+  "carId": "2",
+  "customerId": "2",
+  "startDate": "2024-03-01",
+  "endDate": "2024-03-05",
+  "totalPrice": 420.50
+  // status will default to "pending"
+}
+
+### 4. Get all reservations
+GET {{baseUrl}}/reservation
+
+### 5. Get reservation by ID (replace {id})
+GET {{baseUrl}}/reservation/1
+
+### 6. Get reservations by customer ID (replace {customerId})
+GET {{baseUrl}}/reservation/customer/1
+
+### 7. Get reservations by car ID (replace {carId})
+GET {{baseUrl}}/reservation/car/1
+
+### 8. Get reservations by status
+GET {{baseUrl}}/reservation/status/pending
+
+### 9. Get upcoming reservations (next 7 days)
+GET {{baseUrl}}/reservation/upcoming?days=7
+
+### 10. Confirm a reservation (replace {id})
+PATCH {{baseUrl}}/reservation/1/confirm
+
+### 11. Cancel a reservation (replace {id})
+PATCH {{baseUrl}}/reservation/1/cancel
+
+### 12. Update reservation status (replace {id})
+PATCH {{baseUrl}}/reservation/1/status
+Content-Type: application/json
+
+"confirmed"
+
+### 13. Update reservation details (replace {id})
+PATCH {{baseUrl}}/reservation/1
+Content-Type: application/json
+
+{
+  "totalPrice": 400.00,
+  "endDate": "2024-02-22"
+}
+
+### 14. Get reservation statistics
+GET {{baseUrl}}/reservation/stats
+
+### 15. Delete reservation (replace {id})
+DELETE {{baseUrl}}/reservation/1
+
+### 16. Try to create reservation with date conflict (should return 409)
+POST {{baseUrl}}/reservation
+Content-Type: application/json
+
+{
+  "carId": "1",
+  "customerId": "1",
+  "startDate": "2024-02-18",
+  "endDate": "2024-02-25",
+  "totalPrice": 450.00
+}
