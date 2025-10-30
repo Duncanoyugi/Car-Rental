@@ -6,9 +6,9 @@ POST {{baseUrl}}/customer
 Content-Type: application/json
 
 {
-  "firstName": "Duncan",
-  "lastName": "Ochieng",
-  "email": "duncan@gmail.com",
+  "firstName": "Miriam",
+  "lastName": "Achieng",
+  "email": "miriam@gmail.com",
   "phoneNumber": "0711592572",
   "address": "4060, chuka"
 }

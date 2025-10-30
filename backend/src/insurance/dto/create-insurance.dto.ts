@@ -1,21 +1,31 @@
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateInsuranceDto {
   @IsNotEmpty()
-  @IsString()
   carId: string;
 
   @IsNotEmpty()
   @IsString()
-  insuranceProvider: string; // This is the original property name
+  insuranceProvider: string;
 
   @IsNotEmpty()
   @IsString()
   policyNumber: string;
 
-  @IsDateString()
-  startDate: string; // This is the original property name
+  @IsNotEmpty()
+  @IsString()
+  coverageType: string;
 
   @IsDateString()
-  endDate: string; // This is the original property name
+  @IsNotEmpty()
+  startDate: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  endDate: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  premium: number;
 }

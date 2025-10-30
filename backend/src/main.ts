@@ -1,6 +1,9 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { seedAdmin } from './scripts/seed-admin';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -9,6 +12,12 @@ async function bootstrap() {
   
   // Enable CORS if needed
   app.enableCors();
+  
+  // Get the DataSource from the app
+  const dataSource = app.get(DataSource);
+  
+  // Run the admin seed script
+  await seedAdmin(dataSource);
   
   const port = process.env.PORT || 3000;
   

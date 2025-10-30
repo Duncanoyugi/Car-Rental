@@ -1,25 +1,37 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+// src/rental/dto/create-rental.dto.ts
+import { IsDateString, IsDecimal, IsEnum, IsNotEmpty, IsOptional, IsUUID, Min, MinDate } from 'class-validator';
+
+export enum RentalStatus {
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+  OVERDUE = 'overdue'
+}
 
 export class CreateRentalDto {
+  @IsUUID()
   @IsNotEmpty()
-  @IsString()
-  carId: string;
+  userId: string;
 
   @IsNotEmpty()
-  @IsString()
-  customerId: string;
+  carId: number;
 
   @IsDateString()
-  startDate: string; // Changed from rentalStartDate to startDate
+  @IsNotEmpty()
+  @MinDate(new Date(), { message: 'Start date cannot be in the past' })
+  startDate: string;
 
   @IsDateString()
-  endDate: string; // Changed from rentalEndDate to endDate
-
   @IsNotEmpty()
-  @IsNumber()
-  totalCost: number; // Changed from totalAmount to totalCost
+  @MinDate(new Date(), { message: 'End date cannot be in the past' })
+  endDate: string;
+
+  @IsDecimal()
+  @IsNotEmpty()
+  @Min(0)
+  totalCost: number;
 
   @IsOptional()
-  @IsString()
-  status?: string; // Added this field to match entity (with default)
+  @IsEnum(RentalStatus)
+  status?: string;
 }

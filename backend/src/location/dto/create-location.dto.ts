@@ -1,15 +1,21 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+// src/location/dto/create-location.dto.ts
+import { IsNotEmpty, IsOptional, IsString, IsPhoneNumber, MaxLength, MinLength } from 'class-validator';
 
 export class CreateLocationDto {
   @IsNotEmpty()
   @IsString()
-  LocationName: string; // Changed from locationName to LocationName
+  @MinLength(2)
+  @MaxLength(100)
+  LocationName: string;
 
   @IsNotEmpty()
   @IsString()
-  Address: string; // Changed from address to Address
+  @MinLength(5)
+  @MaxLength(255)
+  Address: string;
 
   @IsOptional()
   @IsString()
-  ContactNumber?: string; // Changed from contactNumber to ContactNumber (and made optional)
+  @IsPhoneNumber() // Validates phone number format
+  ContactNumber?: string;
 }

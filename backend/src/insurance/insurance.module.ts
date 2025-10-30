@@ -1,3 +1,4 @@
+// src/insurance/insurance.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InsuranceService } from './insurance.service';
@@ -7,10 +8,10 @@ import { Car } from '../car/entities/car.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Insurance, Car]), // Add both Insurance and Car entities
+    TypeOrmModule.forFeature([Insurance, Car]),
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],
-  exports: [InsuranceService], // Export if other modules need to use insurance service
+  exports: [InsuranceService],
 })
 export class InsuranceModule {}

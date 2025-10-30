@@ -16,7 +16,6 @@ export class PaymentService {
   ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
-    // Check if rental exists
     const rental = await this.rentalRepository.findOne({
       where: { id: +createPaymentDto.rentalId },
     });
@@ -24,13 +23,9 @@ export class PaymentService {
     if (!rental) {
       throw new NotFoundException(`Rental with ID ${createPaymentDto.rentalId} not found`);
     }
-
-    // Validate payment amount (should be positive)
     if (createPaymentDto.amount <= 0) {
       throw new BadRequestException('Payment amount must be greater than 0');
     }
-
-    // Map DTO to entity (convert date string to Date object)
     const paymentData = {
       paymentDate: new Date(createPaymentDto.paymentDate),
       amount: createPaymentDto.amount,
@@ -80,8 +75,6 @@ export class PaymentService {
 
   async update(id: number, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
     const payment = await this.findOne(id);
-
-    // If updating rentalId, check if new rental exists
     if (updatePaymentDto.rentalId && +updatePaymentDto.rentalId !== payment.rental.id) {
       const newRental = await this.rentalRepository.findOne({
         where: { id: +updatePaymentDto.rentalId },
@@ -93,8 +86,6 @@ export class PaymentService {
 
       payment.rental = newRental;
     }
-
-    // Update other fields
     if (updatePaymentDto.paymentDate !== undefined) {
       payment.paymentDate = new Date(updatePaymentDto.paymentDate);
     }

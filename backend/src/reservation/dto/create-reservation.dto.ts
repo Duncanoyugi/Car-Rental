@@ -1,25 +1,37 @@
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+// src/reservation/dto/create-reservation.dto.ts
+import { IsDateString, IsDecimal, IsEnum, IsNotEmpty, IsOptional, IsUUID, Min, MinDate } from 'class-validator';
+
+export enum ReservationStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed'
+}
 
 export class CreateReservationDto {
+  @IsUUID()
   @IsNotEmpty()
-  @IsString()
-  carId: string;
+  userId: string;
 
   @IsNotEmpty()
-  @IsString()
-  customerId: string;
+  carId: number;
 
   @IsDateString()
-  startDate: string; // Changed from reservationDate/pickupDate to startDate
+  @IsNotEmpty()
+  @MinDate(new Date(), { message: 'Start date cannot be in the past' })
+  startDate: string;
 
   @IsDateString()
-  endDate: string; // Changed from returnDate to endDate
-
   @IsNotEmpty()
-  @IsNumber()
-  totalPrice: number; // Added this field to match entity
+  @MinDate(new Date(), { message: 'End date cannot be in the past' })
+  endDate: string;
+
+  @IsDecimal()
+  @IsNotEmpty()
+  @Min(0)
+  totalPrice: number;
 
   @IsOptional()
-  @IsString()
-  status?: string; // Added this field to match entity (with default)
+  @IsEnum(ReservationStatus)
+  status?: string;
 }

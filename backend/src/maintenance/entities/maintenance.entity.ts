@@ -6,7 +6,7 @@ export class Maintenance {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Car, (car) => car.maintenances) // Changed from car.Maintenances to car.maintenances
+  @ManyToOne(() => Car, (car) => car.maintenances) 
   @JoinColumn({ name: 'carId' })
   car: Car;
 

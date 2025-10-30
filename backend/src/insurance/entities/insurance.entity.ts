@@ -6,7 +6,7 @@ export class Insurance {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Car, (car) => car.insurance) // Changed from car.Insurance to car.insurance
+  @OneToOne(() => Car, (car) => car.insurance) 
   @JoinColumn({ name: 'carId' })
   car: Car;
 

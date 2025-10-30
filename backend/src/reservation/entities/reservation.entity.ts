@@ -1,19 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Car } from '../../car/entities/car.entity';
-import { Customer } from '../../customer/entities/customer.entity';
+import { User } from '../../user/entities/user.entity'; // Changed from Customer
 
 @Entity()
 export class Reservation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Car, (car) => car.reservations) // Changed from car.Reservations to car.reservations
+  @ManyToOne(() => Car, (car) => car.reservations)
   @JoinColumn({ name: 'carId' })
   car: Car;
 
-  @ManyToOne(() => Customer, (customer) => customer.reservations) // Changed from customer.Reservations to customer.reservations
-  @JoinColumn({ name: 'customerId' })
-  customer: Customer;
+  @ManyToOne(() => User, (user) => user.reservations) // Changed from Customer
+  @JoinColumn({ name: 'userId' }) // Changed from customerId
+  user: User; // Changed from customer
 
   @Column()
   startDate: Date;

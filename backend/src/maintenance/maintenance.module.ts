@@ -1,3 +1,4 @@
+// src/maintenance/maintenance.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MaintenanceService } from './maintenance.service';
@@ -7,7 +8,7 @@ import { Car } from '../car/entities/car.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Maintenance, Car]), // Add both Maintenance and Car entities
+    TypeOrmModule.forFeature([Maintenance, Car]),
   ],
   controllers: [MaintenanceController],
   providers: [MaintenanceService],

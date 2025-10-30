@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+// src/insurance/insurance.service.ts
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThanOrEqual } from 'typeorm';
 import { Insurance } from './entities/insurance.entity';
 import { Car } from '../car/entities/car.entity';
 import { CreateInsuranceDto } from './dto/create-insurance.dto';
 import { UpdateInsuranceDto } from './dto/update-insurance.dto';
+import { Between, LessThan } from 'typeorm';
 
 @Injectable()
 export class InsuranceService {
@@ -34,13 +36,25 @@ export class InsuranceService {
       throw new ConflictException(`Car with ID ${createInsuranceDto.carId} already has insurance`);
     }
 
+    // Validate dates
+    const startDate = new Date(createInsuranceDto.startDate);
+    const endDate = new Date(createInsuranceDto.endDate);
+
+    if (endDate <= startDate) {
+      throw new BadRequestException('End date must be after start date');
+    }
+
+    if (endDate <= new Date()) {
+      throw new BadRequestException('Insurance must have a future expiry date');
+    }
+
     // Map DTO properties to entity properties
     const insuranceData = {
-      provider: createInsuranceDto.insuranceProvider, // Map insuranceProvider → provider
+      provider: createInsuranceDto.insuranceProvider,
       policyNumber: createInsuranceDto.policyNumber,
-      coverageType: 'Comprehensive', // Default value since DTO doesn't have this
-      expiryDate: new Date(createInsuranceDto.endDate), // Map endDate → expiryDate
-      premium: 500.00, // Default value since DTO doesn't have this
+      coverageType: createInsuranceDto.coverageType,
+      expiryDate: endDate,
+      premium: createInsuranceDto.premium,
       car: car,
     };
 
@@ -51,6 +65,15 @@ export class InsuranceService {
   async findAll(): Promise<Insurance[]> {
     return await this.insuranceRepository.find({
       relations: ['car'],
+      order: { expiryDate: 'ASC' }
+    });
+  }
+
+  async findActiveInsurances(): Promise<Insurance[]> {
+    return await this.insuranceRepository.find({
+      where: { expiryDate: MoreThanOrEqual(new Date()) },
+      relations: ['car'],
+      order: { expiryDate: 'ASC' }
     });
   }
 
@@ -105,6 +128,24 @@ export class InsuranceService {
       insurance.car = newCar;
     }
 
+    // Validate dates if provided
+    if (updateInsuranceDto.endDate !== undefined) {
+      const endDate = new Date(updateInsuranceDto.endDate);
+      const startDate = updateInsuranceDto.startDate 
+        ? new Date(updateInsuranceDto.startDate) 
+        : insurance.expiryDate; // Use current expiry date if start date not provided
+
+      if (endDate <= startDate) {
+        throw new BadRequestException('End date must be after start date');
+      }
+
+      if (endDate <= new Date()) {
+        throw new BadRequestException('Insurance must have a future expiry date');
+      }
+
+      insurance.expiryDate = endDate;
+    }
+
     // Map DTO properties to entity properties
     if (updateInsuranceDto.insuranceProvider !== undefined) {
       insurance.provider = updateInsuranceDto.insuranceProvider;
@@ -112,8 +153,11 @@ export class InsuranceService {
     if (updateInsuranceDto.policyNumber !== undefined) {
       insurance.policyNumber = updateInsuranceDto.policyNumber;
     }
-    if (updateInsuranceDto.endDate !== undefined) {
-      insurance.expiryDate = new Date(updateInsuranceDto.endDate);
+    if (updateInsuranceDto.coverageType !== undefined) {
+      insurance.coverageType = updateInsuranceDto.coverageType;
+    }
+    if (updateInsuranceDto.premium !== undefined) {
+      insurance.premium = updateInsuranceDto.premium;
     }
 
     return await this.insuranceRepository.save(insurance);
@@ -121,6 +165,17 @@ export class InsuranceService {
 
   async remove(id: number): Promise<void> {
     const insurance = await this.findOne(id);
+    
+    // Check if the car has active rentals
+    const carWithRelations = await this.carRepository.findOne({
+      where: { id: insurance.car.id },
+      relations: ['rentals']
+    });
+
+    if (carWithRelations?.rentals?.some(rental => rental.status === 'active')) {
+      throw new BadRequestException('Cannot remove insurance from a car with active rentals');
+    }
+
     await this.insuranceRepository.remove(insurance);
   }
 
@@ -133,16 +188,78 @@ export class InsuranceService {
       .where('insurance.expiryDate <= :expiryDate', { expiryDate })
       .andWhere('insurance.expiryDate >= :today', { today: new Date() })
       .leftJoinAndSelect('insurance.car', 'car')
+      .orderBy('insurance.expiryDate', 'ASC')
       .getMany();
   }
 
-  async isInsuranceValid(carId: number): Promise<{ isValid: boolean; insurance?: Insurance }> {
+  async getExpiredInsurances(): Promise<Insurance[]> {
+    return await this.insuranceRepository
+      .createQueryBuilder('insurance')
+      .where('insurance.expiryDate < :today', { today: new Date() })
+      .leftJoinAndSelect('insurance.car', 'car')
+      .orderBy('insurance.expiryDate', 'DESC')
+      .getMany();
+  }
+
+  async isInsuranceValid(carId: number): Promise<{ isValid: boolean; insurance?: Insurance; daysUntilExpiry?: number }> {
     try {
       const insurance = await this.findByCarId(carId);
-      const isValid = insurance.expiryDate > new Date();
-      return { isValid, insurance };
+      const today = new Date();
+      const expiryDate = new Date(insurance.expiryDate);
+      const isValid = expiryDate > today;
+      
+      const timeDiff = expiryDate.getTime() - today.getTime();
+      const daysUntilExpiry = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+      return { isValid, insurance, daysUntilExpiry };
     } catch (error) {
       return { isValid: false };
     }
+  }
+
+  async getInsuranceStats(): Promise<{
+    totalInsurances: number;
+    activeInsurances: number;
+    expiredInsurances: number;
+    expiringSoon: number;
+    totalPremium: number;
+  }> {
+    const [totalInsurances, activeInsurances, expiredInsurances, expiringSoon] = await Promise.all([
+      this.insuranceRepository.count(),
+      this.insuranceRepository.count({ where: { expiryDate: MoreThanOrEqual(new Date()) } }),
+      this.insuranceRepository.count({ where: { expiryDate: LessThan(new Date()) } }),
+      this.insuranceRepository.count({ 
+        where: { 
+          expiryDate: Between(new Date(), new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)) 
+        } 
+      })
+    ]);
+
+    const premiumResult = await this.insuranceRepository
+      .createQueryBuilder('insurance')
+      .select('SUM(insurance.premium)', 'totalPremium')
+      .getRawOne();
+
+    const totalPremium = parseFloat(premiumResult.totalPremium) || 0;
+
+    return {
+      totalInsurances,
+      activeInsurances,
+      expiredInsurances,
+      expiringSoon,
+      totalPremium
+    };
+  }
+
+  async renewInsurance(id: number, newEndDate: string): Promise<Insurance> {
+    const insurance = await this.findOne(id);
+    
+    const newExpiryDate = new Date(newEndDate);
+    if (newExpiryDate <= insurance.expiryDate) {
+      throw new BadRequestException('New expiry date must be after current expiry date');
+    }
+
+    insurance.expiryDate = newExpiryDate;
+    return await this.insuranceRepository.save(insurance);
   }
 }

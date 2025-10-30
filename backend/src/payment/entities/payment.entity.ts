@@ -1,21 +1,21 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Rental } from '../../rental/entities/rental.entity'; // FIXED PATH
+import { Rental } from '../../rental/entities/rental.entity'; 
 
 @Entity()
 export class Payment {
   @PrimaryGeneratedColumn()
-  id: number; // Changed from PaymentID to id
+  id: number; 
 
-  @ManyToOne(() => Rental, (rental) => rental.payments) // lowercase
+  @ManyToOne(() => Rental, (rental) => rental.payments) 
   @JoinColumn({ name: 'rentalId' })
-  rental: Rental; // lowercase
+  rental: Rental;
 
   @Column({ type: 'date' })
-  paymentDate: Date; // camelCase
+  paymentDate: Date; 
 
   @Column('decimal', { precision: 10, scale: 2 })
-  amount: number; // lowercase
+  amount: number; 
 
   @Column({ length: 50 })
-  paymentMethod: string; // camelCase
+  paymentMethod: string; 
 }

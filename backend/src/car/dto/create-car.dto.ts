@@ -1,4 +1,5 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+// src/car/dto/create-car.dto.ts
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min, Max } from 'class-validator';
 
 export class CreateCarDto {
   @IsNotEmpty()
@@ -11,6 +12,8 @@ export class CreateCarDto {
 
   @IsNotEmpty()
   @IsNumber()
+  @Min(1900)
+  @Max(new Date().getFullYear() + 1)
   year: number;
 
   @IsOptional()
@@ -19,6 +22,7 @@ export class CreateCarDto {
 
   @IsNotEmpty()
   @IsNumber()
+  @Min(0)
   rentalRate: number;
 
   @IsOptional()
