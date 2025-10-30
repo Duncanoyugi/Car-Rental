@@ -1,93 +1,162 @@
-### Base URL
+### test-payment.http
+
 @baseUrl = http://localhost:3000
+@contentType = application/json
 
-### 1. Create a payment (replace {rentalId} with actual rental ID)
+### 1. CREATE PAYMENT FOR RENTAL
+# @name createPayment
 POST {{baseUrl}}/payment
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
-  "rentalId": "1",
-  "paymentDate": "2024-01-15",
+  "rentalId": 1,
+  "paymentDate": "2024-03-15",
   "amount": 150.75,
-  "paymentMethod": "Credit Card"
+  "paymentMethod": "credit_card"
 }
 
-### 2. Create another payment
+### 2. CREATE ANOTHER PAYMENT
+# @name createPayment2
 POST {{baseUrl}}/payment
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
-  "rentalId": "1",
-  "paymentDate": "2024-01-20",
-  "amount": 75.50,
-  "paymentMethod": "Cash"
+  "rentalId": 2,
+  "paymentDate": "2024-03-16",
+  "amount": 89.50,
+  "paymentMethod": "debit_card"
 }
 
-### 3. Create payment with different rental
+### 3. CREATE CASH PAYMENT
+# @name createPayment3
 POST {{baseUrl}}/payment
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
-  "rentalId": "2",
-  "paymentDate": "2024-02-01",
+  "rentalId": 3,
+  "paymentDate": "2024-03-17",
   "amount": 200.00,
-  "paymentMethod": "Debit Card"
+  "paymentMethod": "cash"
 }
 
-### 4. Get all payments
+### 4. CREATE BANK TRANSFER PAYMENT
+# @name createPayment4
+POST {{baseUrl}}/payment
+Content-Type: {{contentType}}
+
+{
+  "rentalId": 1,
+  "paymentDate": "2024-03-18",
+  "amount": 75.25,
+  "paymentMethod": "bank_transfer"
+}
+
+### 5. GET ALL PAYMENTS
 GET {{baseUrl}}/payment
+Content-Type: {{contentType}}
 
-### 5. Get payment by ID (replace {id})
-GET {{baseUrl}}/payment/1
+### 6. GET PAYMENT BY ID
+GET {{baseUrl}}/payment/{{createPayment.response.body.$.id}}
+Content-Type: {{contentType}}
 
-### 6. Get payments by rental ID (replace {rentalId})
+### 7. UPDATE PAYMENT
+PATCH {{baseUrl}}/payment/{{createPayment.response.body.$.id}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 175.00,
+  "paymentMethod": "digital_wallet"
+}
+
+### 8. DELETE PAYMENT
+DELETE {{baseUrl}}/payment/{{createPayment.response.body.$.id}}
+Content-Type: {{contentType}}
+
+### 9. GET PAYMENTS BY RENTAL ID (Custom method - you may need to add this endpoint)
 GET {{baseUrl}}/payment/rental/1
+Content-Type: {{contentType}}
 
-### 7. Get payments by payment method
-GET {{baseUrl}}/payment/method/Credit%20Card
+### 10. GET PAYMENTS BY PAYMENT METHOD (Custom method - you may need to add this endpoint)
+GET {{baseUrl}}/payment/method/credit_card
+Content-Type: {{contentType}}
 
-### 8. Get payments by date range
-GET {{baseUrl}}/payment/range?startDate=2024-01-01&endDate=2024-01-31
+### 11. GET PAYMENTS BY DATE RANGE (Custom method - you may need to add this endpoint)
+GET {{baseUrl}}/payment/range?startDate=2024-03-15&endDate=2024-03-18
+Content-Type: {{contentType}}
 
-### 9. Update payment (replace {id})
-PATCH {{baseUrl}}/payment/1
-Content-Type: application/json
-
-{
-  "amount": 160.00,
-  "paymentMethod": "Bank Transfer"
-}
-
-### 10. Get total revenue
+### 12. GET TOTAL REVENUE (Custom method - you may need to add this endpoint)
 GET {{baseUrl}}/payment/revenue/total
+Content-Type: {{contentType}}
 
-### 11. Get revenue by date range
-GET {{baseUrl}}/payment/revenue/range?startDate=2024-01-01&endDate=2024-01-31
+### 13. GET REVENUE BY DATE RANGE (Custom method - you may need to add this endpoint)
+GET {{baseUrl}}/payment/revenue/range?startDate=2024-03-15&endDate=2024-03-18
+Content-Type: {{contentType}}
 
-### 12. Get payment methods summary
+### 14. GET PAYMENT METHODS SUMMARY (Custom method - you may need to add this endpoint)
 GET {{baseUrl}}/payment/methods/summary
+Content-Type: {{contentType}}
 
-### 13. Delete payment (replace {id})
-DELETE {{baseUrl}}/payment/1
-
-### 14. Try to create payment with invalid amount (should return 400)
+### 15. TRY TO CREATE PAYMENT FOR NON-EXISTENT RENTAL (Should fail)
 POST {{baseUrl}}/payment
-Content-Type: application/json
+Content-Type: {{contentType}}
 
 {
-  "rentalId": "1",
-  "paymentDate": "2024-01-15",
-  "amount": -50.00,
-  "paymentMethod": "Credit Card"
-}
-
-### 15. Try to create payment for non-existent rental (should return 404)
-POST {{baseUrl}}/payment
-Content-Type: application/json
-
-{
-  "rentalId": "999",
-  "paymentDate": "2024-01-15",
+  "rentalId": 9999,
+  "paymentDate": "2024-03-15",
   "amount": 100.00,
-  "paymentMethod": "Credit Card"
+  "paymentMethod": "credit_card"
 }
+
+### 16. TRY TO CREATE PAYMENT WITH ZERO AMOUNT (Should fail)
+POST {{baseUrl}}/payment
+Content-Type: {{contentType}}
+
+{
+  "rentalId": 1,
+  "paymentDate": "2024-03-15",
+  "amount": 0,
+  "paymentMethod": "credit_card"
+}
+
+### 17. TRY TO CREATE PAYMENT WITH NEGATIVE AMOUNT (Should fail)
+POST {{baseUrl}}/payment
+Content-Type: {{contentType}}
+
+{
+  "rentalId": 1,
+  "paymentDate": "2024-03-15",
+  "amount": -50.00,
+  "paymentMethod": "credit_card"
+}
+
+### 18. TRY TO UPDATE NON-EXISTENT PAYMENT (Should fail)
+PATCH {{baseUrl}}/payment/9999
+Content-Type: {{contentType}}
+
+{
+  "amount": 200.00
+}
+
+### 19. TRY TO UPDATE PAYMENT WITH INVALID RENTAL ID (Should fail)
+PATCH {{baseUrl}}/payment/{{createPayment2.response.body.$.id}}
+Content-Type: {{contentType}}
+
+{
+  "rentalId": 9999
+}
+
+### 20. TRY TO UPDATE PAYMENT WITH ZERO AMOUNT (Should fail)
+PATCH {{baseUrl}}/payment/{{createPayment2.response.body.$.id}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 0
+}
+
+### 21. TRY TO GET NON-EXISTENT PAYMENT (Should fail)
+GET {{baseUrl}}/payment/9999
+Content-Type: {{contentType}}
+
+### 22. TRY TO DELETE NON-EXISTENT PAYMENT (Should fail)
+DELETE {{baseUrl}}/payment/9999
+Content-Type: {{contentType}}

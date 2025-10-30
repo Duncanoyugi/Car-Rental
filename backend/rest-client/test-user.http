@@ -1,0 +1,145 @@
+### test-user.http
+
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. REGISTER A CUSTOMER (Public endpoint)
+POST {{baseUrl}}/auth/register/customer
+Content-Type: {{contentType}}
+
+{
+  "email": "customer@example.com",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phoneNumber": "+1234567890"
+}
+
+### 2. REGISTER A DRIVER (Public endpoint)
+POST {{baseUrl}}/auth/register/driver
+Content-Type: {{contentType}}
+
+{
+  "email": "driver@example.com",
+  "password": "password123",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "phoneNumber": "+1234567891",
+  "licenseNumber": "DRIVER12345"
+}
+
+### 3. LOGIN AS CUSTOMER (Public endpoint)
+# @name customerLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "customer@example.com",
+  "password": "password123"
+}
+
+### 4. LOGIN AS DRIVER (Public endpoint)
+# @name driverLogin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "driver@example.com",
+  "password": "password123"
+}
+
+### 5. GET CURRENT USER PROFILE (Requires Auth)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+### 6. REFRESH TOKEN (Public endpoint)
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{customerLogin.response.body.$.refreshToken}}"
+}
+
+### 7. LOGOUT (Requires Auth)
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+### 8. GET ALL USERS (Admin/Manager only)
+GET {{baseUrl}}/users
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 9. GET USER BY ID (Requires Auth - own profile or Admin/Manager)
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+### 10. UPDATE USER PROFILE (Requires Auth - own profile or Admin/Manager)
+PATCH {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "John Updated",
+  "lastName": "Doe Updated",
+  "phoneNumber": "+1234567899"
+}
+
+### 11. GET ALL DRIVERS (Admin/Manager only)
+GET {{baseUrl}}/users/role/drivers
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 12. GET ALL MANAGERS (Admin only)
+GET {{baseUrl}}/users/role/managers
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 13. ACTIVATE USER (Admin/Manager only)
+PATCH {{baseUrl}}/users/{{userId}}/activate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 14. DEACTIVATE USER (Admin/Manager only)
+PATCH {{baseUrl}}/users/{{userId}}/deactivate
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 15. DELETE USER (Admin only)
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 16. REGISTER MANAGER (Admin only - requires admin token)
+# First, you need to create an admin user manually in database or through a seed script
+POST {{baseUrl}}/auth/register/manager
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "email": "manager@example.com",
+  "password": "password123",
+  "firstName": "Manager",
+  "lastName": "User",
+  "phoneNumber": "+1234567892"
+}
+
+### 17. REGISTER ADMIN (Admin only - requires admin token)
+POST {{baseUrl}}/auth/register/admin
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@example.com",
+  "password": "password123",
+  "firstName": "Admin",
+  "lastName": "User",
+  "phoneNumber": "+1234567893"
+}
+
+### 18. PROMOTE USER TO MANAGER (Admin only)
+PATCH {{baseUrl}}/auth/promote-to-manager/{{userId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}

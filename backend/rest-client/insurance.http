@@ -1,54 +1,225 @@
-### Base URL
-@baseUrl = http://localhost:3000
+### test-insurance.http
 
-### 1. Create insurance for a car (using ORIGINAL DTO property names)
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. CREATE INSURANCE FOR CAR (Admin/Manager only)
+# @name createInsurance
 POST {{baseUrl}}/insurance
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "5",
+  "carId": 1,
   "insuranceProvider": "State Farm",
   "policyNumber": "SF123456789",
+  "coverageType": "Comprehensive",
   "startDate": "2024-01-01",
-  "endDate": "2025-01-01"
+  "endDate": "2025-01-01",
+  "premium": 1200.00
 }
 
-### 2. Create another insurance
+### 2. CREATE INSURANCE FOR ANOTHER CAR
+# @name createInsurance2
 POST {{baseUrl}}/insurance
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "2",
+  "carId": 2,
   "insuranceProvider": "Geico",
   "policyNumber": "GC987654321",
+  "coverageType": "Liability",
   "startDate": "2024-02-01",
-  "endDate": "2025-02-01"
+  "endDate": "2024-08-01",
+  "premium": 800.50
 }
 
-### 3. Get all insurance records
-GET {{baseUrl}}/insurance
-
-### 4. Get insurance by ID (replace {id} with actual insurance ID)
-GET {{baseUrl}}/insurance/1
-
-### 5. Get insurance by car ID (replace {carId} with actual car ID)
-GET {{baseUrl}}/insurance/car/1
-
-### 6. Update insurance (replace {id} with actual insurance ID)
-PATCH {{baseUrl}}/insurance/1
-Content-Type: application/json
+### 3. CREATE INSURANCE WITH EXPIRING SOON DATE (for testing)
+# @name createExpiringInsurance
+POST {{baseUrl}}/insurance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "insuranceProvider": "State Farm Updated",
-  "policyNumber": "SF-UPDATED-123",
-  "endDate": "2025-06-01"
+  "carId": 3,
+  "insuranceProvider": "Allstate",
+  "policyNumber": "AL555666777",
+  "coverageType": "Full Coverage",
+  "startDate": "2024-01-01",
+  "endDate": "2024-02-15",  # Will expire soon for testing
+  "premium": 1500.75
 }
 
-### 7. Check if insurance is valid for car (replace {carId})
-GET {{baseUrl}}/insurance/car/1/valid
+### 4. GET ALL INSURANCES (Admin/Manager only)
+GET {{baseUrl}}/insurance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 8. Get expiring insurances (within 30 days)
-GET {{baseUrl}}/insurance/expiring?days=30
+### 5. GET ACTIVE INSURANCES (Admin/Manager only)
+GET {{baseUrl}}/insurance/active
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 9. Delete insurance (replace {id})
-DELETE {{baseUrl}}/insurance/1
+### 6. GET EXPIRING INSURANCES - Default 30 days (Admin/Manager only)
+GET {{baseUrl}}/insurance/expiring
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 7. GET EXPIRING INSURANCES - Custom days (Admin/Manager only)
+GET {{baseUrl}}/insurance/expiring?days=60
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 8. GET EXPIRED INSURANCES (Admin/Manager only)
+GET {{baseUrl}}/insurance/expired
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 9. GET INSURANCE STATISTICS (Admin/Manager only)
+GET {{baseUrl}}/insurance/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 10. GET INSURANCE BY CAR ID (Public)
+GET {{baseUrl}}/insurance/car/1
+Content-Type: {{contentType}}
+
+### 11. CHECK INSURANCE VALIDITY BY CAR ID (Public)
+GET {{baseUrl}}/insurance/check-validity/1
+Content-Type: {{contentType}}
+
+### 12. GET INSURANCE BY ID (Admin/Manager only)
+GET {{baseUrl}}/insurance/{{createInsurance.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 13. UPDATE INSURANCE (Admin/Manager only)
+PATCH {{baseUrl}}/insurance/{{createInsurance.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "insuranceProvider": "State Farm Premium",
+  "premium": 1350.00,
+  "coverageType": "Premium Comprehensive"
+}
+
+### 14. RENEW INSURANCE (Admin/Manager only)
+PATCH {{baseUrl}}/insurance/{{createInsurance.response.body.$.id}}/renew
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "newEndDate": "2026-01-01"
+}
+
+### 15. DELETE INSURANCE (Admin only)
+DELETE {{baseUrl}}/insurance/{{createInsurance.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 16. TRY TO CREATE DUPLICATE INSURANCE FOR SAME CAR (Should fail)
+POST {{baseUrl}}/insurance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "insuranceProvider": "Another Provider",
+  "policyNumber": "DUP123456",
+  "coverageType": "Basic",
+  "startDate": "2024-03-01",
+  "endDate": "2025-03-01",
+  "premium": 900.00
+}
+
+### 17. TRY TO CREATE INSURANCE FOR NON-EXISTENT CAR (Should fail)
+POST {{baseUrl}}/insurance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 9999,
+  "insuranceProvider": "Test Provider",
+  "policyNumber": "TEST123",
+  "coverageType": "Test Coverage",
+  "startDate": "2024-01-01",
+  "endDate": "2025-01-01",
+  "premium": 1000.00
+}
+
+### 18. TRY TO CREATE INSURANCE WITH PAST END DATE (Should fail)
+POST {{baseUrl}}/insurance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 4,
+  "insuranceProvider": "Past Insurance",
+  "policyNumber": "PAST123",
+  "coverageType": "Expired",
+  "startDate": "2023-01-01",
+  "endDate": "2023-12-31",
+  "premium": 500.00
+}
+
+### 19. TRY TO CREATE INSURANCE WITH END DATE BEFORE START DATE (Should fail)
+POST {{baseUrl}}/insurance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 4,
+  "insuranceProvider": "Invalid Dates",
+  "policyNumber": "INV123",
+  "coverageType": "Invalid",
+  "startDate": "2024-12-01",
+  "endDate": "2024-01-01",
+  "premium": 500.00
+}
+
+### 20. TRY TO UPDATE NON-EXISTENT INSURANCE (Should fail)
+PATCH {{baseUrl}}/insurance/9999
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "premium": 1500.00
+}
+
+### 21. TRY TO RENEW WITH EARLIER DATE (Should fail)
+PATCH {{baseUrl}}/insurance/{{createInsurance.response.body.$.id}}/renew
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "newEndDate": "2024-06-01"
+}
+
+### 22. CHECK INSURANCE VALIDITY FOR CAR WITHOUT INSURANCE (Public)
+GET {{baseUrl}}/insurance/check-validity/999
+Content-Type: {{contentType}}
+
+### 23. GET INSURANCE FOR CAR WITHOUT INSURANCE (Should fail)
+GET {{baseUrl}}/insurance/car/999
+Content-Type: {{contentType}}
+
+### 24. TRY TO ACCESS PROTECTED ENDPOINT WITHOUT AUTH (Should fail)
+GET {{baseUrl}}/insurance
+Content-Type: {{contentType}}
+
+### 25. TRY TO CREATE INSURANCE AS CUSTOMER (Should fail)
+POST {{baseUrl}}/insurance
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "insuranceProvider": "Unauthorized",
+  "policyNumber": "UNAUTH123",
+  "coverageType": "Basic",
+  "startDate": "2024-01-01",
+  "endDate": "2025-01-01",
+  "premium": 1000.00
+}

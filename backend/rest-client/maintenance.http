@@ -1,77 +1,265 @@
-### Base URL
-@baseUrl = http://localhost:3000
+### test-maintenance.http
 
-### 1. Create a maintenance record (using revised DTO)
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. CREATE SCHEDULED MAINTENANCE (Admin/Manager only)
+# @name createMaintenance
 POST {{baseUrl}}/maintenance
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "5",
+  "carId": 1,
   "maintenanceType": "Oil Change",
-  "description": "Regular oil and filter change",
-  "maintenanceDate": "2024-01-15",
-  "cost": 75.50,
+  "description": "Regular oil change and filter replacement",
+  "maintenanceDate": "2024-03-15T10:00:00.000Z",
+  "cost": 89.99,
   "status": "scheduled"
 }
 
-### 2. Create another maintenance record
+### 2. CREATE TIRE ROTATION MAINTENANCE
+# @name createMaintenance2
 POST {{baseUrl}}/maintenance
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "1",
+  "carId": 2,
   "maintenanceType": "Tire Rotation",
-  "description": "Rotate all four tires",
-  "maintenanceDate": "2024-02-01",
-  "cost": 25.00
-  // status will default to "scheduled"
+  "description": "Rotate tires and check pressure",
+  "maintenanceDate": "2024-03-20T14:00:00.000Z",
+  "cost": 45.50,
+  "status": "scheduled"
 }
 
-### 3. Create completed maintenance
+### 3. CREATE BRAKE SERVICE MAINTENANCE
+# @name createMaintenance3
 POST {{baseUrl}}/maintenance
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "2",
+  "carId": 1,
   "maintenanceType": "Brake Service",
   "description": "Replace brake pads and rotors",
-  "maintenanceDate": "2024-01-10",
-  "cost": 320.00,
+  "maintenanceDate": "2024-04-01T09:00:00.000Z",
+  "cost": 350.75,
+  "status": "scheduled"
+}
+
+### 4. CREATE IN-PROGRESS MAINTENANCE
+# @name createMaintenance4
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 3,
+  "maintenanceType": "Engine Repair",
+  "description": "Fix engine misfire issue",
+  "maintenanceDate": "2024-03-10T08:00:00.000Z",
+  "cost": 520.00,
+  "status": "in_progress"
+}
+
+### 5. CREATE COMPLETED MAINTENANCE
+# @name createMaintenance5
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 2,
+  "maintenanceType": "Battery Replacement",
+  "description": "Replace old battery with new one",
+  "maintenanceDate": "2024-02-15T11:00:00.000Z",
+  "cost": 189.99,
   "status": "completed"
 }
 
-### 4. Get all maintenance records
+### 6. GET ALL MAINTENANCE RECORDS (Admin/Manager/Driver)
 GET {{baseUrl}}/maintenance
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 5. Get maintenance by ID (replace {id})
-GET {{baseUrl}}/maintenance/1
+### 7. GET ACTIVE MAINTENANCE (Admin/Manager/Driver)
+GET {{baseUrl}}/maintenance/active
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 6. Get maintenance by car ID (replace {carId})
+### 8. GET UPCOMING MAINTENANCE - Default 7 days (Admin/Manager/Driver)
+GET {{baseUrl}}/maintenance/upcoming
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
+
+### 9. GET UPCOMING MAINTENANCE - Custom 30 days (Admin/Manager/Driver)
+GET {{baseUrl}}/maintenance/upcoming?days=30
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
+
+### 10. GET OVERDUE MAINTENANCE (Admin/Manager only)
+GET {{baseUrl}}/maintenance/overdue
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 11. GET MAINTENANCE STATISTICS (Admin/Manager only)
+GET {{baseUrl}}/maintenance/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 12. GET MAINTENANCE BY TYPE (Admin/Manager only)
+GET {{baseUrl}}/maintenance/by-type
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 13. GET MAINTENANCE BY CAR ID (Admin/Manager/Driver)
 GET {{baseUrl}}/maintenance/car/1
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 7. Get maintenance by status
+### 14. GET MAINTENANCE BY STATUS (Admin/Manager/Driver)
 GET {{baseUrl}}/maintenance/status/scheduled
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 8. Get upcoming maintenance (next 7 days)
-GET {{baseUrl}}/maintenance/upcoming?days=7
+### 15. GET MAINTENANCE COST BY CAR (Admin/Manager only)
+GET {{baseUrl}}/maintenance/cost/car/1
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 9. Update maintenance status (replace {id})
-PATCH {{baseUrl}}/maintenance/1/status
-Content-Type: application/json
+### 16. GET MAINTENANCE BY ID (Admin/Manager/Driver)
+GET {{baseUrl}}/maintenance/{{createMaintenance.response.body.$.id}}
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-"in-progress"
-
-### 10. Update maintenance record (replace {id})
-PATCH {{baseUrl}}/maintenance/1
-Content-Type: application/json
+### 17. UPDATE MAINTENANCE (Admin/Manager only)
+PATCH {{baseUrl}}/maintenance/{{createMaintenance.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "cost": 80.00,
-  "description": "Oil change with synthetic oil"
+  "cost": 99.99,
+  "description": "Oil change with synthetic oil and premium filter"
 }
 
-### 11. Get maintenance cost for car (replace {carId})
-GET {{baseUrl}}/maintenance/car/1/cost
+### 18. UPDATE MAINTENANCE STATUS (Admin/Manager only)
+PATCH {{baseUrl}}/maintenance/{{createMaintenance.response.body.$.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 12. Delete maintenance record (replace {id})
-DELETE {{baseUrl}}/maintenance/1
+{
+  "status": "in_progress"
+}
+
+### 19. COMPLETE MAINTENANCE (Admin/Manager only)
+PATCH {{baseUrl}}/maintenance/{{createMaintenance.response.body.$.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "status": "completed"
+}
+
+### 20. DELETE MAINTENANCE (Admin only)
+DELETE {{baseUrl}}/maintenance/{{createMaintenance.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 21. TRY TO CREATE MAINTENANCE WITH PAST DATE (Should fail)
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "maintenanceType": "Past Maintenance",
+  "description": "This should fail",
+  "maintenanceDate": "2023-01-01T10:00:00.000Z",
+  "cost": 50.00,
+  "status": "scheduled"
+}
+
+### 22. TRY TO CREATE MAINTENANCE FOR NON-EXISTENT CAR (Should fail)
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 9999,
+  "maintenanceType": "Test Maintenance",
+  "description": "Non-existent car",
+  "maintenanceDate": "2024-12-01T10:00:00.000Z",
+  "cost": 100.00,
+  "status": "scheduled"
+}
+
+### 23. TRY TO CREATE CONFLICTING MAINTENANCE (Should fail)
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "maintenanceType": "Conflicting Maintenance",
+  "description": "This should conflict with existing maintenance",
+  "maintenanceDate": "2024-03-15T11:00:00.000Z", // Within 2 hours of existing maintenance
+  "cost": 75.00,
+  "status": "scheduled"
+}
+
+### 24. TRY TO UPDATE NON-EXISTENT MAINTENANCE (Should fail)
+PATCH {{baseUrl}}/maintenance/9999
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cost": 200.00
+}
+
+### 25. TRY TO DELETE IN-PROGRESS MAINTENANCE (Should fail)
+DELETE {{baseUrl}}/maintenance/{{createMaintenance4.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 26. TRY TO DELETE COMPLETED MAINTENANCE (Should fail)
+DELETE {{baseUrl}}/maintenance/{{createMaintenance5.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 27. TRY TO CHANGE STATUS FROM COMPLETED (Should fail)
+PATCH {{baseUrl}}/maintenance/{{createMaintenance5.response.body.$.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "status": "scheduled"
+}
+
+### 28. TRY TO ACCESS AS CUSTOMER (Should fail - only Admin/Manager/Driver)
+GET {{baseUrl}}/maintenance
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 29. TRY TO CREATE MAINTENANCE AS DRIVER (Should fail - only Admin/Manager)
+POST {{baseUrl}}/maintenance
+Authorization: Bearer {{driverToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "maintenanceType": "Unauthorized",
+  "description": "Driver trying to create maintenance",
+  "maintenanceDate": "2024-12-01T10:00:00.000Z",
+  "cost": 50.00,
+  "status": "scheduled"
+}
+
+### 30. TRY TO UPDATE MAINTENANCE AS DRIVER (Should fail - only Admin/Manager)
+PATCH {{baseUrl}}/maintenance/{{createMaintenance.response.body.$.id}}
+Authorization: Bearer {{driverToken}}
+Content-Type: {{contentType}}
+
+{
+  "cost": 25.00
+}

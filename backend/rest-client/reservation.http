@@ -1,88 +1,262 @@
-### Base URL
+### test-reservation.http
+
 @baseUrl = http://localhost:3000
+@contentType = application/json
 
-### 1. Check car availability for reservation (replace {carId})
-GET {{baseUrl}}/reservation/availability/1?startDate=2024-02-15&endDate=2024-02-20
-
-### 2. Create a reservation (replace {carId} and {customerId})
+### 1. CREATE RESERVATION (Customer only)
+# @name createReservation
 POST {{baseUrl}}/reservation
-Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "6",
-  "customerId": "2",
-  "startDate": "2024-02-15",
-  "endDate": "2024-02-20",
-  "totalPrice": 375.00,
+  "carId": 1,
+  "startDate": "2024-04-01T10:00:00.000Z",
+  "endDate": "2024-04-05T10:00:00.000Z",
+  "totalPrice": 200.00,
   "status": "pending"
 }
 
-### 3. Create another reservation
+### 2. CREATE ANOTHER RESERVATION
+# @name createReservation2
 POST {{baseUrl}}/reservation
-Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "2",
-  "customerId": "2",
-  "startDate": "2024-03-01",
-  "endDate": "2024-03-05",
-  "totalPrice": 420.50
-  // status will default to "pending"
+  "carId": 2,
+  "startDate": "2024-04-10T14:00:00.000Z",
+  "endDate": "2024-04-12T14:00:00.000Z",
+  "totalPrice": 150.50,
+  "status": "pending"
 }
 
-### 4. Get all reservations
+### 3. CREATE CONFIRMED RESERVATION
+# @name createReservation3
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 3,
+  "startDate": "2024-05-01T09:00:00.000Z",
+  "endDate": "2024-05-03T09:00:00.000Z",
+  "totalPrice": 180.00,
+  "status": "confirmed"
+}
+
+### 4. CREATE CANCELLED RESERVATION
+# @name createReservation4
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 4,
+  "startDate": "2024-04-15T12:00:00.000Z",
+  "endDate": "2024-04-17T12:00:00.000Z",
+  "totalPrice": 220.00,
+  "status": "cancelled"
+}
+
+### 5. GET ALL RESERVATIONS (Admin/Manager only)
 GET {{baseUrl}}/reservation
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 5. Get reservation by ID (replace {id})
-GET {{baseUrl}}/reservation/1
+### 6. GET MY RESERVATIONS (Customer only)
+GET {{baseUrl}}/reservation/my-reservations
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
-### 6. Get reservations by customer ID (replace {customerId})
-GET {{baseUrl}}/reservation/customer/1
+### 7. GET UPCOMING RESERVATIONS - Default 7 days (Admin/Manager only)
+GET {{baseUrl}}/reservation/upcoming
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 7. Get reservations by car ID (replace {carId})
-GET {{baseUrl}}/reservation/car/1
+### 8. GET UPCOMING RESERVATIONS - Custom 14 days (Admin/Manager only)
+GET {{baseUrl}}/reservation/upcoming?days=14
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 8. Get reservations by status
-GET {{baseUrl}}/reservation/status/pending
+### 9. GET EXPIRING RESERVATIONS - Default 24 hours (Admin/Manager only)
+GET {{baseUrl}}/reservation/expiring
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 9. Get upcoming reservations (next 7 days)
-GET {{baseUrl}}/reservation/upcoming?days=7
+### 10. GET EXPIRING RESERVATIONS - Custom 48 hours (Admin/Manager only)
+GET {{baseUrl}}/reservation/expiring?hours=48
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 10. Confirm a reservation (replace {id})
-PATCH {{baseUrl}}/reservation/1/confirm
-
-### 11. Cancel a reservation (replace {id})
-PATCH {{baseUrl}}/reservation/1/cancel
-
-### 12. Update reservation status (replace {id})
-PATCH {{baseUrl}}/reservation/1/status
-Content-Type: application/json
-
-"confirmed"
-
-### 13. Update reservation details (replace {id})
-PATCH {{baseUrl}}/reservation/1
-Content-Type: application/json
-
-{
-  "totalPrice": 400.00,
-  "endDate": "2024-02-22"
-}
-
-### 14. Get reservation statistics
+### 11. GET RESERVATION STATISTICS (Admin/Manager only)
 GET {{baseUrl}}/reservation/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 15. Delete reservation (replace {id})
-DELETE {{baseUrl}}/reservation/1
+### 12. GET RESERVATIONS BY CAR ID (Admin/Manager only)
+GET {{baseUrl}}/reservation/car/1
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 16. Try to create reservation with date conflict (should return 409)
-POST {{baseUrl}}/reservation
-Content-Type: application/json
+### 13. GET RESERVATIONS BY STATUS (Admin/Manager/Customer)
+GET {{baseUrl}}/reservation/status/pending
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 14. GET RESERVATIONS BY USER ID (Admin/Manager only)
+GET {{baseUrl}}/reservation/user/{{customerId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 15. GET RESERVATION BY ID
+GET {{baseUrl}}/reservation/{{createReservation.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 16. UPDATE RESERVATION
+PATCH {{baseUrl}}/reservation/{{createReservation.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "1",
-  "customerId": "1",
-  "startDate": "2024-02-18",
-  "endDate": "2024-02-25",
-  "totalPrice": 450.00
+  "totalPrice": 225.00,
+  "endDate": "2024-04-06T10:00:00.000Z"
 }
+
+### 17. CONFIRM RESERVATION (Admin/Manager only)
+PATCH {{baseUrl}}/reservation/{{createReservation.response.body.$.id}}/confirm
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 18. CANCEL RESERVATION
+PATCH {{baseUrl}}/reservation/{{createReservation.response.body.$.id}}/cancel
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 19. UPDATE RESERVATION STATUS (Admin/Manager only)
+PATCH {{baseUrl}}/reservation/{{createReservation.response.body.$.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "status": "completed"
+}
+
+### 20. DELETE RESERVATION
+DELETE {{baseUrl}}/reservation/{{createReservation.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 21. CHECK CAR AVAILABILITY
+GET {{baseUrl}}/reservation/availability/check?carId=1&startDate=2024-04-20T10:00:00.000Z&endDate=2024-04-25T10:00:00.000Z
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 22. TRY TO CREATE RESERVATION WITH PAST START DATE (Should fail)
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "startDate": "2023-01-01T10:00:00.000Z",
+  "endDate": "2024-04-05T10:00:00.000Z",
+  "totalPrice": 200.00,
+  "status": "pending"
+}
+
+### 23. TRY TO CREATE RESERVATION WITH END DATE BEFORE START DATE (Should fail)
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "startDate": "2024-04-05T10:00:00.000Z",
+  "endDate": "2024-04-01T10:00:00.000Z",
+  "totalPrice": 200.00,
+  "status": "pending"
+}
+
+### 24. TRY TO CREATE RESERVATION FOR NON-EXISTENT CAR (Should fail)
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 9999,
+  "startDate": "2024-04-01T10:00:00.000Z",
+  "endDate": "2024-04-05T10:00:00.000Z",
+  "totalPrice": 200.00,
+  "status": "pending"
+}
+
+### 25. TRY TO CREATE RESERVATION FOR UNAVAILABLE CAR (Should fail)
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1, // Assuming car 1 is already reserved/rented
+  "startDate": "2024-04-01T10:00:00.000Z",
+  "endDate": "2024-04-05T10:00:00.000Z",
+  "totalPrice": 200.00,
+  "status": "pending"
+}
+
+### 26. TRY TO CREATE RESERVATION AS NON-CUSTOMER (Should fail)
+POST {{baseUrl}}/reservation
+Authorization: Bearer {{driverToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 5,
+  "startDate": "2024-04-01T10:00:00.000Z",
+  "endDate": "2024-04-05T10:00:00.000Z",
+  "totalPrice": 200.00,
+  "status": "pending"
+}
+
+### 27. TRY TO VIEW ALL RESERVATIONS AS CUSTOMER (Should fail)
+GET {{baseUrl}}/reservation
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 28. TRY TO VIEW ANOTHER USER'S RESERVATIONS (Should fail)
+GET {{baseUrl}}/reservation/user/{{otherCustomerId}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 29. TRY TO UPDATE ANOTHER USER'S RESERVATION (Should fail)
+PATCH {{baseUrl}}/reservation/{{createReservation2.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "totalPrice": 300.00
+}
+
+### 30. TRY TO UPDATE NON-PENDING RESERVATION AS CUSTOMER (Should fail)
+PATCH {{baseUrl}}/reservation/{{createReservation3.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "totalPrice": 250.00
+}
+
+### 31. TRY TO CONFIRM NON-PENDING RESERVATION (Should fail)
+PATCH {{baseUrl}}/reservation/{{createReservation3.response.body.$.id}}/confirm
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 32. TRY TO CANCEL COMPLETED RESERVATION (Should fail)
+PATCH {{baseUrl}}/reservation/{{createReservation3.response.body.$.id}}/cancel
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 33. TRY TO DELETE CONFIRMED RESERVATION (Should fail)
+DELETE {{baseUrl}}/reservation/{{createReservation3.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}

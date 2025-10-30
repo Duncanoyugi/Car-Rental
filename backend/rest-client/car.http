@@ -1,39 +1,171 @@
-### Base URL
-@baseUrl = http://localhost:3000
+### test-car.http
 
-### 1. Create a new car (with fixed DTO properties)
-### Use the OLD property names that match your DTO
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. CREATE A CAR (Admin/Manager only)
+# @name createCar
 POST {{baseUrl}}/cars
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
   "carModel": "Camry",
-  "manufacturer": "Toyota", 
+  "manufacturer": "Toyota",
   "year": 2023,
-  "color": "Blue",
+  "color": "Silver",
   "rentalRate": 45.50,
   "availability": true
 }
 
-### 2. Create another car
+### 2. CREATE ANOTHER CAR
+# @name createCar2
 POST {{baseUrl}}/cars
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
   "carModel": "Civic",
-  "manufacturer": "Honda", 
+  "manufacturer": "Honda",
   "year": 2024,
-  "color": "Red",
+  "color": "Blue",
   "rentalRate": 40.00,
   "availability": true
 }
 
-### 3. Update car (with fixed DTO properties)
-PATCH {{baseUrl}}/cars/5
-Content-Type: application/json
+### 3. CREATE A LUXURY CAR
+# @name createLuxuryCar
+POST {{baseUrl}}/cars
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "rentalRate": 48.00,
-  "color": "Dark Blue",
+  "carModel": "Model S",
+  "manufacturer": "Tesla",
+  "year": 2024,
+  "color": "Red",
+  "rentalRate": 120.00,
+  "availability": true
+}
+
+### 4. GET ALL CARS (Public - no auth required)
+GET {{baseUrl}}/cars
+Content-Type: {{contentType}}
+
+### 5. GET ALL CARS (Available only)
+GET {{baseUrl}}/cars?available=true
+Content-Type: {{contentType}}
+
+### 6. GET AVAILABLE CARS ONLY (Public)
+GET {{baseUrl}}/cars/available
+Content-Type: {{contentType}}
+
+### 7. GET CAR BY ID (Public)
+GET {{baseUrl}}/cars/{{createCar.response.body.$.id}}
+Content-Type: {{contentType}}
+
+### 8. SEARCH CARS BY MANUFACTURER (Public)
+GET {{baseUrl}}/cars/search?manufacturer=Toyota
+Content-Type: {{contentType}}
+
+### 9. SEARCH CARS BY YEAR RANGE (Public)
+GET {{baseUrl}}/cars/search?minYear=2023&maxYear=2024
+Content-Type: {{contentType}}
+
+### 10. SEARCH CARS BY PRICE RANGE (Public)
+GET {{baseUrl}}/cars/search?minPrice=30&maxPrice=50
+Content-Type: {{contentType}}
+
+### 11. SEARCH CARS BY COLOR (Public)
+GET {{baseUrl}}/cars/search?color=Blue
+Content-Type: {{contentType}}
+
+### 12. SEARCH CARS WITH MULTIPLE FILTERS (Public)
+GET {{baseUrl}}/cars/search?manufacturer=Toyota&minYear=2020&maxPrice=100&availableOnly=true
+Content-Type: {{contentType}}
+
+### 13. GET CARS BY MANUFACTURER (Public)
+GET {{baseUrl}}/cars/manufacturer/Toyota
+Content-Type: {{contentType}}
+
+### 14. UPDATE CAR (Admin/Manager only)
+PATCH {{baseUrl}}/cars/{{createCar.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "rentalRate": 50.00,
+  "color": "Black"
+}
+
+### 15. UPDATE CAR AVAILABILITY (Admin/Manager only)
+PATCH {{baseUrl}}/cars/{{createCar.response.body.$.id}}/availability
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
   "isAvailable": false
 }
+
+### 16. GET CAR STATISTICS (Admin/Manager only)
+GET {{baseUrl}}/cars/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 17. DELETE CAR (Admin only)
+DELETE {{baseUrl}}/cars/{{createCar.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 18. TRY TO CREATE CAR WITH DUPLICATE (Should fail)
+POST {{baseUrl}}/cars
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "carModel": "Camry",
+  "manufacturer": "Toyota",
+  "year": 2023,
+  "color": "White",
+  "rentalRate": 45.50,
+  "availability": true
+}
+
+### 19. TRY TO UPDATE NON-EXISTENT CAR (Should fail)
+PATCH {{baseUrl}}/cars/9999
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "rentalRate": 50.00
+}
+
+### 20. TRY TO GET NON-EXISTENT CAR (Should fail)
+GET {{baseUrl}}/cars/9999
+Content-Type: {{contentType}}
+
+### 21. TRY TO CREATE CAR WITHOUT AUTH (Should fail)
+POST {{baseUrl}}/cars
+Content-Type: {{contentType}}
+
+{
+  "carModel": "Unauthorized",
+  "manufacturer": "Test",
+  "year": 2024,
+  "color": "Red",
+  "rentalRate": 50.00
+}
+
+### 22. TRY TO UPDATE CAR AS CUSTOMER (Should fail)
+PATCH {{baseUrl}}/cars/{{createCar.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "rentalRate": 25.00
+}
+
+### 23. TRY TO DELETE CAR AS MANAGER (Should fail - only admin)
+DELETE {{baseUrl}}/cars/{{createCar.response.body.$.id}}
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}

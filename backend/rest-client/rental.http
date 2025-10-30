@@ -1,94 +1,231 @@
-### Base URL
+### test-rental.http
+
 @baseUrl = http://localhost:3000
+@contentType = application/json
 
-### 1. Check car availability (replace {carId})
-GET {{baseUrl}}/rental/availability/1?startDate=2024-01-15&endDate=2024-01-20
-
-### 2. Create a rental (replace {carId} and {customerId})
+### 1. CREATE RENTAL (Customer only)
+# @name createRental
 POST {{baseUrl}}/rental
-Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "5",
-  "customerId": "1",
-  "startDate": "2024-01-15",
-  "endDate": "2024-01-20",
-  "totalCost": 450.00,
+  "carId": 1,
+  "startDate": "2024-03-20",
+  "endDate": "2024-03-25",
+  "totalCost": 250.00,
   "status": "active"
 }
 
-### 3. Create another rental
+### 2. CREATE ANOTHER RENTAL
+# @name createRental2
 POST {{baseUrl}}/rental
-Content-Type: application/json
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "2",
-  "customerId": "2",
+  "carId": 2,
+  "startDate": "2024-04-01",
+  "endDate": "2024-04-05",
+  "totalCost": 180.50,
+  "status": "active"
+}
+
+### 3. CREATE COMPLETED RENTAL
+# @name createRental3
+POST {{baseUrl}}/rental
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 3,
   "startDate": "2024-02-01",
   "endDate": "2024-02-05",
-  "totalCost": 320.50
-  // status will default to "active"
+  "totalCost": 200.00,
+  "status": "completed"
 }
 
-### 4. Get all rentals
+### 4. GET ALL RENTALS (Admin/Manager only)
 GET {{baseUrl}}/rental
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 5. Get rental by ID (replace {id})
-GET {{baseUrl}}/rental/1
+### 5. GET MY RENTALS (Customer only)
+GET {{baseUrl}}/rental/my-rentals
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
-### 6. Get rentals by customer ID (replace {customerId})
-GET {{baseUrl}}/rental/customer/1
-
-### 7. Get rentals by car ID (replace {carId})
-GET {{baseUrl}}/rental/car/1
-
-### 8. Get rentals by status
-GET {{baseUrl}}/rental/status/active
-
-### 9. Get active rentals
+### 6. GET ACTIVE RENTALS (Admin/Manager/Driver)
 GET {{baseUrl}}/rental/active
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 10. Update rental (replace {id})
-PATCH {{baseUrl}}/rental/1
-Content-Type: application/json
+### 7. GET OVERDUE RENTALS (Admin/Manager only)
+GET {{baseUrl}}/rental/overdue
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-{
-  "totalCost": 480.00,
-  "endDate": "2024-01-22"
-}
-
-### 11. Update rental status (replace {id})
-PATCH {{baseUrl}}/rental/1/status
-Content-Type: application/json
-
-"completed"
-
-### 12. Get rental statistics
+### 8. GET RENTAL STATISTICS (Admin/Manager only)
 GET {{baseUrl}}/rental/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 13. Delete rental (replace {id})
-DELETE {{baseUrl}}/rental/1
+### 9. GET RENTALS BY CAR ID (Admin/Manager only)
+GET {{baseUrl}}/rental/car/1
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
 
-### 14. Try to create rental with date conflict (should return 409)
-POST {{baseUrl}}/rental
-Content-Type: application/json
+### 10. GET RENTALS BY STATUS (Admin/Manager/Customer)
+GET {{baseUrl}}/rental/status/active
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 11. GET RENTALS BY USER ID (Admin/Manager only)
+GET {{baseUrl}}/rental/user/{{customerId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 12. GET RENTAL BY ID
+GET {{baseUrl}}/rental/{{createRental.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 13. UPDATE RENTAL
+PATCH {{baseUrl}}/rental/{{createRental.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "1",
-  "customerId": "1",
-  "startDate": "2024-01-18",
-  "endDate": "2024-01-25",
-  "totalCost": 500.00
+  "totalCost": 275.00
 }
 
-### 15. Try to create rental for unavailable car (should return 409)
-POST {{baseUrl}}/rental
-Content-Type: application/json
+### 14. UPDATE RENTAL STATUS (Admin/Manager only)
+PATCH {{baseUrl}}/rental/{{createRental.response.body.$.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "carId": "1",
-  "customerId": "1",
-  "startDate": "2024-03-01",
-  "endDate": "2024-03-05",
-  "totalCost": 400.00
+  "status": "completed"
 }
+
+### 15. EXTEND RENTAL
+PATCH {{baseUrl}}/rental/{{createRental.response.body.$.id}}/extend
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "newEndDate": "2024-03-27"
+}
+
+### 16. DELETE RENTAL (Admin only)
+DELETE {{baseUrl}}/rental/{{createRental.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 17. CHECK CAR AVAILABILITY
+GET {{baseUrl}}/rental/availability/check?carId=1&startDate=2024-04-10&endDate=2024-04-15
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 18. TRY TO CREATE RENTAL WITH PAST START DATE (Should fail)
+POST {{baseUrl}}/rental
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "startDate": "2023-01-01",
+  "endDate": "2024-03-25",
+  "totalCost": 250.00,
+  "status": "active"
+}
+
+### 19. TRY TO CREATE RENTAL WITH END DATE BEFORE START DATE (Should fail)
+POST {{baseUrl}}/rental
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1,
+  "startDate": "2024-03-25",
+  "endDate": "2024-03-20",
+  "totalCost": 250.00,
+  "status": "active"
+}
+
+### 20. TRY TO CREATE RENTAL FOR NON-EXISTENT CAR (Should fail)
+POST {{baseUrl}}/rental
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 9999,
+  "startDate": "2024-04-01",
+  "endDate": "2024-04-05",
+  "totalCost": 250.00,
+  "status": "active"
+}
+
+### 21. TRY TO CREATE RENTAL FOR UNAVAILABLE CAR (Should fail)
+POST {{baseUrl}}/rental
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 1, // Assuming car 1 is already rented
+  "startDate": "2024-03-20",
+  "endDate": "2024-03-25",
+  "totalCost": 250.00,
+  "status": "active"
+}
+
+### 22. TRY TO CREATE RENTAL AS NON-CUSTOMER (Should fail)
+POST {{baseUrl}}/rental
+Authorization: Bearer {{driverToken}}
+Content-Type: {{contentType}}
+
+{
+  "carId": 4,
+  "startDate": "2024-04-01",
+  "endDate": "2024-04-05",
+  "totalCost": 250.00,
+  "status": "active"
+}
+
+### 23. TRY TO VIEW ALL RENTALS AS CUSTOMER (Should fail)
+GET {{baseUrl}}/rental
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 24. TRY TO VIEW ANOTHER USER'S RENTALS (Should fail)
+GET {{baseUrl}}/rental/user/{{otherCustomerId}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 25. TRY TO UPDATE ANOTHER USER'S RENTAL (Should fail)
+PATCH {{baseUrl}}/rental/{{createRental2.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "totalCost": 300.00
+}
+
+### 26. TRY TO EXTEND NON-ACTIVE RENTAL (Should fail)
+PATCH {{baseUrl}}/rental/{{createRental3.response.body.$.id}}/extend
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "newEndDate": "2024-02-10"
+}
+
+### 27. TRY TO DELETE RENTAL AS CUSTOMER (Should fail)
+DELETE {{baseUrl}}/rental/{{createRental.response.body.$.id}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+### 28. TRY TO DELETE ACTIVE RENTAL (Should fail)
+DELETE {{baseUrl}}/rental/{{createRental.response.body.$.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}

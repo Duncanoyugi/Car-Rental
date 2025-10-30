@@ -1,5 +1,6 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -16,6 +17,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { LoggerModule } from './logger/logger.module';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
   imports: [
@@ -25,6 +28,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
       load: [databaseConfig],
     }),
     DatabaseModule,
+    LoggerModule, // Make sure LoggerModule is imported first
     CarModule,
     InsuranceModule,
     LocationModule,
@@ -33,7 +37,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     RentalModule,
     ReservationModule,
     UserModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -45,6 +49,10 @@ import { RolesGuard } from './auth/guards/roles.guard';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
   ],
 })

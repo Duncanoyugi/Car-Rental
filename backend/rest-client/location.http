@@ -1,58 +1,183 @@
-### Base URL
-@baseUrl = http://localhost:3000
+### test-location.http
 
-### 1. Create a new location (using ENTITY property names)
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### 1. CREATE LOCATION (Admin/Manager only)
+# @name createLocation
 POST {{baseUrl}}/location
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "LocationName": "chuka",
-  "Address": "4060, chuka",
-  "ContactNumber": "555-0101"
+  "LocationName": "Downtown Branch",
+  "Address": "123 Main Street, Downtown, Cityville",
+  "ContactNumber": "+1-555-0101"
 }
 
-### 2. Create another location
+### 2. CREATE ANOTHER LOCATION
+# @name createLocation2
 POST {{baseUrl}}/location
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
   "LocationName": "Airport Branch",
-  "Address": "456 Airport Road, Airport Zone, City",
-  "ContactNumber": "555-0202"
+  "Address": "456 Airport Road, Airport Zone, Cityville",
+  "ContactNumber": "+1-555-0102"
 }
 
-### 3. Create location without contact number (nullable)
+### 3. CREATE SUBURBAN LOCATION
+# @name createLocation3
 POST {{baseUrl}}/location
-Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "LocationName": "Mall Branch",
-  "Address": "789 Shopping Mall, Retail District, City"
+  "LocationName": "Suburban Branch",
+  "Address": "789 Oak Avenue, Suburbia, Cityville",
+  "ContactNumber": "+1-555-0103"
 }
 
-### 4. Get all locations
+### 4. CREATE LOCATION WITHOUT CONTACT NUMBER
+# @name createLocation4
+POST {{baseUrl}}/location
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "LocationName": "Beach Branch",
+  "Address": "321 Coastal Highway, Beachside, Cityville"
+}
+
+### 5. GET ALL LOCATIONS (Public - no auth required)
 GET {{baseUrl}}/location
+Content-Type: {{contentType}}
 
-### 5. Get location by ID (replace {id} with actual location ID from response above)
-GET {{baseUrl}}/location/1
+### 6. GET ACTIVE LOCATIONS (Public)
+GET {{baseUrl}}/location/active
+Content-Type: {{contentType}}
 
-### 6. Update location (replace {id} with actual location ID)
-PATCH {{baseUrl}}/location/1
-Content-Type: application/json
+### 7. GET LOCATION BY ID (Public)
+GET {{baseUrl}}/location/{{createLocation.response.body.$.LocationID}}
+Content-Type: {{contentType}}
+
+### 8. SEARCH LOCATIONS BY NAME (Public)
+GET {{baseUrl}}/location/name/Downtown
+Content-Type: {{contentType}}
+
+### 9. SEARCH LOCATIONS BY ADDRESS (Public)
+GET {{baseUrl}}/location/address/Airport
+Content-Type: {{contentType}}
+
+### 10. SEARCH LOCATIONS WITH GENERAL SEARCH (Public)
+GET {{baseUrl}}/location/search?q=branch
+Content-Type: {{contentType}}
+
+### 11. SEARCH LOCATIONS WITH CONTACT NUMBER (Public)
+GET {{baseUrl}}/location/search?q=555
+Content-Type: {{contentType}}
+
+### 12. GET LOCATIONS BY PROXIMITY (Public - simplified implementation)
+GET {{baseUrl}}/location/proximity?lat=40.7128&lng=-74.0060&radius=10
+Content-Type: {{contentType}}
+
+### 13. GET LOCATION STATISTICS (Admin/Manager only)
+GET {{baseUrl}}/location/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+### 14. VALIDATE LOCATION EXISTS (Public)
+GET {{baseUrl}}/location/validate/{{createLocation.response.body.$.LocationID}}
+Content-Type: {{contentType}}
+
+### 15. UPDATE LOCATION (Admin/Manager only)
+PATCH {{baseUrl}}/location/{{createLocation.response.body.$.LocationID}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
 {
-  "ContactNumber": "555-9999",
-  "Address": "123 Updated Main Street, Downtown, City"
+  "ContactNumber": "+1-555-9999",
+  "Address": "123 Updated Main Street, Downtown, Cityville"
 }
 
-### 7. Search locations by name
-GET {{baseUrl}}/location/search/Downtown
+### 16. DELETE LOCATION (Admin only)
+DELETE {{baseUrl}}/location/{{createLocation.response.body.$.LocationID}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 8. Find locations by name
-GET {{baseUrl}}/location/name/Airport%20Branch
+### 17. TRY TO CREATE LOCATION WITH DUPLICATE NAME (Should fail)
+POST {{baseUrl}}/location
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
 
-### 9. Find locations by address
-GET {{baseUrl}}/location/address/Main
+{
+  "LocationName": "Downtown Branch",
+  "Address": "999 Different Street, Downtown, Cityville",
+  "ContactNumber": "+1-555-8888"
+}
 
-### 10. Delete a location (replace {id} with actual location ID)
-DELETE {{baseUrl}}/location/1
+### 18. TRY TO CREATE LOCATION WITH DUPLICATE ADDRESS (Should fail)
+POST {{baseUrl}}/location
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "LocationName": "Different Downtown Branch",
+  "Address": "123 Main Street, Downtown, Cityville",
+  "ContactNumber": "+1-555-7777"
+}
+
+### 19. TRY TO UPDATE WITH DUPLICATE NAME (Should fail)
+PATCH {{baseUrl}}/location/{{createLocation2.response.body.$.LocationID}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "LocationName": "Downtown Branch"
+}
+
+### 20. TRY TO UPDATE WITH DUPLICATE ADDRESS (Should fail)
+PATCH {{baseUrl}}/location/{{createLocation2.response.body.$.LocationID}}
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "Address": "123 Main Street, Downtown, Cityville"
+}
+
+### 21. TRY TO GET NON-EXISTENT LOCATION (Should fail)
+GET {{baseUrl}}/location/9999
+Content-Type: {{contentType}}
+
+### 22. VALIDATE NON-EXISTENT LOCATION (Public)
+GET {{baseUrl}}/location/validate/9999
+Content-Type: {{contentType}}
+
+### 23. SEARCH WITH SHORT TERM (Should fail)
+GET {{baseUrl}}/location/search?q=a
+Content-Type: {{contentType}}
+
+### 24. TRY TO CREATE LOCATION WITHOUT AUTH (Should fail)
+POST {{baseUrl}}/location
+Content-Type: {{contentType}}
+
+{
+  "LocationName": "Unauthorized Branch",
+  "Address": "999 Unauthorized Street, Cityville",
+  "ContactNumber": "+1-555-0000"
+}
+
+### 25. TRY TO UPDATE LOCATION AS CUSTOMER (Should fail)
+PATCH {{baseUrl}}/location/{{createLocation.response.body.$.LocationID}}
+Authorization: Bearer {{customerToken}}
+Content-Type: {{contentType}}
+
+{
+  "ContactNumber": "+1-555-1111"
+}
+
+### 26. TRY TO DELETE LOCATION AS MANAGER (Should fail - only admin)
+DELETE {{baseUrl}}/location/{{createLocation.response.body.$.LocationID}}
+Authorization: Bearer {{managerToken}}
+Content-Type: {{contentType}}
