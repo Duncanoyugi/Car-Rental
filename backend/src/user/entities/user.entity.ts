@@ -13,8 +13,7 @@ export enum UserRole {
 }
 
 @Entity('users')
-// Add table-level check constraint for SQL Server
-// @Check(`"role" IN ('Admin', 'manager', 'driver', 'customer')`) // Uncomment if needed
+ @Check(`"role" IN ('Admin', 'manager', 'driver', 'customer')`)
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -24,8 +23,6 @@ export class User {
 
   @Column()
   password: string;
-
-  // Use string column instead of enum for SQL Server compatibility
   @Column({
     type: 'nvarchar',
     length: 50,
@@ -57,7 +54,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // Add relationships
   @OneToMany(() => Rental, (rental) => rental.user)
   rentals: Rental[];
 

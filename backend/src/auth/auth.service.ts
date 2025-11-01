@@ -1,5 +1,5 @@
 // src/auth/auth.service.ts
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +11,8 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -27,16 +29,20 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
-    // Validate role permissions
-    await this.validateRoleCreation(createUserDto.role, currentUser);
+    // Provide default role if not specified and validate role permissions
+    const role = createUserDto.role || UserRole.CUSTOMER;
+    await this.validateRoleCreation(role, currentUser);
 
     // Validate driver registration
-    if (createUserDto.role === UserRole.DRIVER && !createUserDto.licenseNumber) {
+    if (role === UserRole.DRIVER && !createUserDto.licenseNumber) {
       throw new BadRequestException('License number is required for drivers');
     }
 
-    // Create user
-    const user = this.userRepository.create(createUserDto);
+    // Create user with ensured role
+    const user = this.userRepository.create({
+      ...createUserDto,
+      role // Ensure role is always set
+    });
     await this.userRepository.save(user);
 
     // Generate tokens
@@ -55,25 +61,49 @@ export class AuthService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<{ user: Partial<User>; accessToken: string; refreshToken: string }> {
+    this.logger.debug(`Login attempt for email: ${loginUserDto.email}`);
+    
     // Find user by email
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email }
     });
 
+    this.logger.debug(`User found: ${user ? 'Yes' : 'No'}`);
+    
     if (!user) {
+      this.logger.warn(`Login failed: No user found with email ${loginUserDto.email}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    this.logger.debug(`User details - ID: ${user.id}, Role: ${user.role}, Active: ${user.isActive}`);
+
     // Check if user is active
     if (!user.isActive) {
+      this.logger.warn(`Login failed: Account deactivated for user ${user.email}`);
       throw new UnauthorizedException('Account is deactivated');
     }
 
     // Validate password
+    this.logger.debug('Validating password...');
     const isPasswordValid = await user.validatePassword(loginUserDto.password);
+    this.logger.debug(`Password validation result: ${isPasswordValid}`);
+    
     if (!isPasswordValid) {
+      this.logger.warn(`Login failed: Invalid password for user ${user.email}`);
+      
+      // Additional debug: Check if it's a bcrypt issue
+      try {
+        // Test if bcrypt.compare works at all
+        const testCompare = await bcrypt.compare('test', user.password);
+        this.logger.debug(`Bcrypt test comparison worked: ${testCompare}`);
+      } catch (bcryptError) {
+        this.logger.error(`Bcrypt comparison error: ${bcryptError.message}`);
+      }
+      
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    this.logger.debug(`Login successful for user: ${user.email}`);
 
     // Generate tokens
     const tokens = await this.generateTokens(user);
@@ -150,6 +180,19 @@ export class AuthService {
 
     const { password, refreshToken, ...userWithoutSensitiveData } = user;
     return userWithoutSensitiveData;
+  }
+
+  // TEMPORARY: Add debug method to check all users
+  async debugAllUsers(): Promise<any[]> {
+    const users = await this.userRepository.find();
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      passwordLength: user.password ? user.password.length : 0,
+      createdAt: user.createdAt
+    }));
   }
 
   private async validateRoleCreation(role: UserRole, currentUser?: User): Promise<void> {

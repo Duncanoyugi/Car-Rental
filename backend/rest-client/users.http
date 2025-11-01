@@ -1,0 +1,7 @@
+### DEBUG: Check all users in database
+GET {{baseUrl}}/auth/debug/users
+Content-Type: {{contentType}}
+
+
+### Health Check
+GET http://localhost:3000/api/v1/auth/health

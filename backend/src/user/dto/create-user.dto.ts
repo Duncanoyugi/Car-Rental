@@ -1,3 +1,4 @@
+// src/user/dto/create-user.dto.ts
 import { IsEmail, IsEnum, IsOptional, IsString, MinLength, ValidateIf } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 
@@ -9,8 +10,9 @@ export class CreateUserDto {
   @MinLength(6)
   password: string;
 
+  @IsOptional() // Make it truly optional
   @IsEnum(UserRole)
-  role: UserRole;
+  role?: UserRole;
 
   @IsString()
   @IsOptional()

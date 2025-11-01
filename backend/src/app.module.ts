@@ -19,6 +19,9 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { LoggerModule } from './logger/logger.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { SeedController } from './seed/seed.controller';
+import { SeedService } from './seed/seed.service';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -38,8 +41,9 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
     ReservationModule,
     UserModule,
     AuthModule,
+    SeedModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, SeedController],
   providers: [
     AppService,
     {
@@ -54,6 +58,7 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
     },
+    SeedService,
   ],
 })
 export class AppModule {}

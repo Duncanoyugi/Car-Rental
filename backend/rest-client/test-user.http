@@ -1,6 +1,4 @@
-### test-user.http
-
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:3000/api/v1
 @contentType = application/json
 
 ### 1. REGISTER A CUSTOMER (Public endpoint)
@@ -8,10 +6,10 @@ POST {{baseUrl}}/auth/register/customer
 Content-Type: {{contentType}}
 
 {
-  "email": "customer@example.com",
-  "password": "password123",
-  "firstName": "John",
-  "lastName": "Doe",
+  "email": "duncanoyugi@gmail.com",
+  "password": "Dante@1234",
+  "firstName": "Duncan",
+  "lastName": "Ochieng",
   "phoneNumber": "+1234567890"
 }
 
@@ -20,23 +18,44 @@ POST {{baseUrl}}/auth/register/driver
 Content-Type: {{contentType}}
 
 {
-  "email": "driver@example.com",
-  "password": "password123",
-  "firstName": "Jane",
-  "lastName": "Smith",
+  "email": "dante@driver.com",
+  "password": "driver1234",
+  "firstName": "Ian",
+  "lastName": "Duncan",
   "phoneNumber": "+1234567891",
   "licenseNumber": "DRIVER12345"
 }
 
 ### 3. LOGIN AS CUSTOMER (Public endpoint)
-# @name customerLogin
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "customer@example.com",
-  "password": "password123"
+  "email": "admin@carrental.com",
+  "password": "Admin123!"
 }
+
+### LOGIN AS ADMIN (Correct password - NO exclamation mark)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@carrental.com",
+  "password": "Admin123!"
+}
+
+### LOGIN AS FRESH ADMIN
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@carrental.com",
+  "password": "Admin123!"
+}
+
+### DEBUG: Check all users with password details
+GET {{baseUrl}}/auth/debug/users
+Content-Type: {{contentType}}
 
 ### 4. LOGIN AS DRIVER (Public endpoint)
 # @name driverLogin
@@ -44,13 +63,13 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "driver@example.com",
-  "password": "password123"
+  "email": "dante@driver.com",
+  "password": "driver1234"
 }
 
 ### 5. GET CURRENT USER PROFILE (Requires Auth)
 GET {{baseUrl}}/auth/profile
-Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDRjlGMTkwQi01OEI2LUYwMTEtOEM5NC1CNDZCRkNFREEyODIiLCJlbWFpbCI6ImRhbnRlQGRyaXZlci5jb20iLCJyb2xlIjoiZHJpdmVyIiwiaWF0IjoxNzYxOTE1MDY3LCJleHAiOjE3NjE5MTU5Njd9.iNB8YMgrZvfHrVNtgBajkkaeB5cDCEKncqb4SYZ7ESo
 Content-Type: {{contentType}}
 
 ### 6. REFRESH TOKEN (Public endpoint)
@@ -58,12 +77,12 @@ POST {{baseUrl}}/auth/refresh
 Content-Type: {{contentType}}
 
 {
-  "refreshToken": "{{customerLogin.response.body.$.refreshToken}}"
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDRjlGMTkwQi01OEI2LUYwMTEtOEM5NC1CNDZCRkNFREEyODIiLCJlbWFpbCI6ImRhbnRlQGRyaXZlci5jb20iLCJyb2xlIjoiZHJpdmVyIiwiaWF0IjoxNzYxOTE1MTU4LCJleHAiOjE3NjI1MTk5NTh9.NTh-DogN3y3HXsfoO0h-4hNp7vLuDSMaRCTCGg5NedU"
 }
 
 ### 7. LOGOUT (Requires Auth)
 POST {{baseUrl}}/auth/logout
-Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDRjlGMTkwQi01OEI2LUYwMTEtOEM5NC1CNDZCRkNFREEyODIiLCJlbWFpbCI6ImRhbnRlQGRyaXZlci5jb20iLCJyb2xlIjoiZHJpdmVyIiwiaWF0IjoxNzYxOTE1MjAwLCJleHAiOjE3NjE5MTYxMDB9.PyGk88SO0sH8rB5fCAtZ4mdmcgK9m4ptFEWbT41EC7I
 Content-Type: {{contentType}}
 
 ### 8. GET ALL USERS (Admin/Manager only)
@@ -73,12 +92,12 @@ Content-Type: {{contentType}}
 
 ### 9. GET USER BY ID (Requires Auth - own profile or Admin/Manager)
 GET {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Authorization: Bearer {{customerLogin.response.body.accessToken}}
 Content-Type: {{contentType}}
 
 ### 10. UPDATE USER PROFILE (Requires Auth - own profile or Admin/Manager)
 PATCH {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{customerLogin.response.body.$.accessToken}}
+Authorization: Bearer {{customerLogin.response.body.accessToken}}
 Content-Type: {{contentType}}
 
 {
