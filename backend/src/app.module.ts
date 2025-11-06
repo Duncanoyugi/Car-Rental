@@ -31,7 +31,7 @@ import { SeedModule } from './seed/seed.module';
       load: [databaseConfig],
     }),
     DatabaseModule,
-    LoggerModule, // Make sure LoggerModule is imported first
+    LoggerModule,
     CarModule,
     InsuranceModule,
     LocationModule,

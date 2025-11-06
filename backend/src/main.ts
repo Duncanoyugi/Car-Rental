@@ -2,8 +2,6 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { seedAdmin } from './scripts/seed-admin';
 import { GlobalErrorFilter } from './exceptions/error-handling.filter';
 import { CustomLoggerService } from './logger/logger.service';
 
@@ -41,21 +39,11 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api/v1');
 
-  // Get the DataSource from the app
-  const dataSource = app.get(DataSource);
-  
-  // Run the admin seed script
-  try {
-    await seedAdmin(dataSource);
-    logger.log('Admin user seeded successfully', 'Bootstrap');
-  } catch (error) {
-    logger.error('Failed to seed admin user', error.stack, 'Bootstrap');
-  }
-
+  // Start server
   const port = process.env.PORT || 3000;
-  
   await app.listen(port);
-  
+
+  // Log info
   logger.log(`🚀 Application is running on: http://localhost:${port}`, 'Bootstrap');
   logger.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`, 'Bootstrap');
   logger.log(`🔐 Auth endpoints available at: http://localhost:${port}/api/v1/auth`, 'Bootstrap');

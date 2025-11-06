@@ -5,8 +5,8 @@
 
 ### 1. CREATE LOCATION (Admin/Manager only)
 # @name createLocation
-POST {{baseUrl}}/location
-Authorization: Bearer {{adminToken}}
+POST {{baseUrl}}/api/v1/location
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM3MzEzMywiZXhwIjoxNzYyMzc0MDMzfQ.jV_IXEaJp2jqelAU7fMd8yTWtNJ47qoeKGl9R_kQ890
 Content-Type: {{contentType}}
 
 {

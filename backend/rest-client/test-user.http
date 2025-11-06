@@ -31,8 +31,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "admin@carrental.com",
-  "password": "Admin123!"
+  "email": "duncanoyugi@gmail.com",
+  "password": "Dante@1234"
 }
 
 ### LOGIN AS ADMIN (Correct password - NO exclamation mark)
@@ -55,7 +55,7 @@ Content-Type: {{contentType}}
 
 ### DEBUG: Check all users with password details
 GET {{baseUrl}}/auth/debug/users
-Content-Type: {{contentType}}
+Content-Type: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MjM1MjAxNCwiZXhwIjoxNzYyMzUyOTE0fQ._nTAouR8TTLiIfgskhxRvsNPMeuewQyBdGMIxETFZWY
 
 ### 4. LOGIN AS DRIVER (Public endpoint)
 # @name driverLogin
@@ -69,7 +69,7 @@ Content-Type: {{contentType}}
 
 ### 5. GET CURRENT USER PROFILE (Requires Auth)
 GET {{baseUrl}}/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDRjlGMTkwQi01OEI2LUYwMTEtOEM5NC1CNDZCRkNFREEyODIiLCJlbWFpbCI6ImRhbnRlQGRyaXZlci5jb20iLCJyb2xlIjoiZHJpdmVyIiwiaWF0IjoxNzYxOTE1MDY3LCJleHAiOjE3NjE5MTU5Njd9.iNB8YMgrZvfHrVNtgBajkkaeB5cDCEKncqb4SYZ7ESo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJCN0Q4QTg5OC1GMEI2LUYwMTEtOEM5NS1CNDZCRkNFREEyODIiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTc2MjMyNDEyMiwiZXhwIjoxNzYyMzI1MDIyfQ.DcjzRmg62IgNzcqeEbmiPlNkgtU5Ls45rLCrpA3hQjg
 Content-Type: {{contentType}}
 
 ### 6. REFRESH TOKEN (Public endpoint)
@@ -82,48 +82,48 @@ Content-Type: {{contentType}}
 
 ### 7. LOGOUT (Requires Auth)
 POST {{baseUrl}}/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDRjlGMTkwQi01OEI2LUYwMTEtOEM5NC1CNDZCRkNFREEyODIiLCJlbWFpbCI6ImRhbnRlQGRyaXZlci5jb20iLCJyb2xlIjoiZHJpdmVyIiwiaWF0IjoxNzYxOTE1MjAwLCJleHAiOjE3NjE5MTYxMDB9.PyGk88SO0sH8rB5fCAtZ4mdmcgK9m4ptFEWbT41EC7I
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MjM1MjI5NiwiZXhwIjoxNzYyMzUzMTk2fQ.leaTcJMoZEXvtNZRwlzaK7pvkU34q6QIrSB3cmiHE7E
 Content-Type: {{contentType}}
 
 ### 8. GET ALL USERS (Admin/Manager only)
 GET {{baseUrl}}/users
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 ### 9. GET USER BY ID (Requires Auth - own profile or Admin/Manager)
-GET {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{customerLogin.response.body.accessToken}}
+GET {{baseUrl}}/users/7B62D1CD-51BA-F011-8C9C-8C1645742CC1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 ### 10. UPDATE USER PROFILE (Requires Auth - own profile or Admin/Manager)
-PATCH {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{customerLogin.response.body.accessToken}}
+PATCH {{baseUrl}}/users/7B62D1CD-51BA-F011-8C9C-8C1645742CC1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 {
-  "firstName": "John Updated",
-  "lastName": "Doe Updated",
+  "firstName": "Dante",
+  "lastName": "Mudhayi",
   "phoneNumber": "+1234567899"
 }
 
 ### 11. GET ALL DRIVERS (Admin/Manager only)
 GET {{baseUrl}}/users/role/drivers
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 ### 12. GET ALL MANAGERS (Admin only)
 GET {{baseUrl}}/users/role/managers
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 ### 13. ACTIVATE USER (Admin/Manager only)
-PATCH {{baseUrl}}/users/{{userId}}/activate
-Authorization: Bearer {{adminToken}}
+PATCH {{baseUrl}}/users/7B62D1CD-51BA-F011-8C9C-8C1645742CC1/activate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 ### 14. DEACTIVATE USER (Admin/Manager only)
-PATCH {{baseUrl}}/users/{{userId}}/deactivate
-Authorization: Bearer {{adminToken}}
+PATCH {{baseUrl}}/users/7B62D1CD-51BA-F011-8C9C-8C1645742CC1/deactivate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 ### 15. DELETE USER (Admin only)

@@ -4,10 +4,9 @@
 @contentType = application/json
 
 ### 1. CREATE A CAR (Admin/Manager only)
-# @name createCar
-POST {{baseUrl}}/cars
-Authorization: Bearer {{adminToken}}
-Content-Type: {{contentType}}
+POST {{baseUrl}}/api/v1/cars
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
+Content-Type: application/json
 
 {
   "carModel": "Camry",
@@ -20,8 +19,8 @@ Content-Type: {{contentType}}
 
 ### 2. CREATE ANOTHER CAR
 # @name createCar2
-POST {{baseUrl}}/cars
-Authorization: Bearer {{adminToken}}
+POST {{baseUrl}}/api/v1/cars
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 {
@@ -35,8 +34,8 @@ Content-Type: {{contentType}}
 
 ### 3. CREATE A LUXURY CAR
 # @name createLuxuryCar
-POST {{baseUrl}}/cars
-Authorization: Bearer {{adminToken}}
+POST {{baseUrl}}/api/v1/cars
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFMTA2RjM0MC01MEJBLUYwMTEtOEM5Qy04QzE2NDU3NDJDQzEiLCJlbWFpbCI6ImR1bmNhbm95dWdpQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc2MjM1MjgwMCwiZXhwIjoxNzYyMzUzNzAwfQ.VsYDUN_qNsg59YRXhqQkBwQ8fkchyNULQ41cIrsFBg0
 Content-Type: {{contentType}}
 
 {
@@ -49,11 +48,11 @@ Content-Type: {{contentType}}
 }
 
 ### 4. GET ALL CARS (Public - no auth required)
-GET {{baseUrl}}/cars
+GET {{baseUrl}}/api/v1/cars
 Content-Type: {{contentType}}
 
 ### 5. GET ALL CARS (Available only)
-GET {{baseUrl}}/cars?available=true
+GET {{baseUrl}}/api/v1/cars?available=true
 Content-Type: {{contentType}}
 
 ### 6. GET AVAILABLE CARS ONLY (Public)
@@ -61,23 +60,23 @@ GET {{baseUrl}}/cars/available
 Content-Type: {{contentType}}
 
 ### 7. GET CAR BY ID (Public)
-GET {{baseUrl}}/cars/{{createCar.response.body.$.id}}
+GET {{baseUrl}}/api/v1/cars/2
 Content-Type: {{contentType}}
 
 ### 8. SEARCH CARS BY MANUFACTURER (Public)
-GET {{baseUrl}}/cars/search?manufacturer=Toyota
+GET {{baseUrl}}/api/v1/cars/search?manufacturer=Toyota
 Content-Type: {{contentType}}
 
 ### 9. SEARCH CARS BY YEAR RANGE (Public)
-GET {{baseUrl}}/cars/search?minYear=2023&maxYear=2024
+GET {{baseUrl}}/api/v1/cars/search?minYear=2023&maxYear=2024
 Content-Type: {{contentType}}
 
 ### 10. SEARCH CARS BY PRICE RANGE (Public)
-GET {{baseUrl}}/cars/search?minPrice=30&maxPrice=50
+GET {{baseUrl}}/api/v1/cars/search?minPrice=30&maxPrice=50
 Content-Type: {{contentType}}
 
 ### 11. SEARCH CARS BY COLOR (Public)
-GET {{baseUrl}}/cars/search?color=Blue
+GET {{baseUrl}}/api/v1/cars/search?color=Blue
 Content-Type: {{contentType}}
 
 ### 12. SEARCH CARS WITH MULTIPLE FILTERS (Public)

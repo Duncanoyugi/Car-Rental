@@ -1,5 +1,5 @@
 ### DEBUG: Check all users in database
-GET {{baseUrl}}/auth/debug/users
+GET {{baseUrl}}/auth/users
 Content-Type: {{contentType}}
 
 
